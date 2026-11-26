@@ -39,25 +39,49 @@ create trigger profiles_set_updated_at
   for each row
   execute function public.set_updated_at();
 
--- Prevent authenticated users from changing their own role via the API
--- (Dashboard SQL Editor / service_role updates still work when auth.uid() is null)
-create or replace function public.prevent_role_self_escalation()
+-- Lock privileged columns (role, xp, level, created_at) against direct API writes.
+-- Students talk to the database as the Postgres role "anon" or "authenticated".
+-- Those roles may NOT change these columns; only trusted code can:
+--   * the Dashboard SQL Editor (runs as "postgres")
+--   * the service_role key (server only, never in the browser)
+--   * future SECURITY DEFINER functions, e.g. awarding XP after a verified flag
+--     (inside them current_user is the function owner, not "authenticated")
+drop trigger if exists profiles_prevent_role_change on public.profiles;
+drop function if exists public.prevent_role_self_escalation();
+
+create or replace function public.protect_profile_privileged_columns()
 returns trigger
 language plpgsql
 as $$
 begin
-  if auth.uid() is not null and new.role is distinct from old.role then
-    raise exception 'Role cannot be changed directly';
+  if current_user not in ('anon', 'authenticated') then
+    return new;
   end if;
+
+  if tg_op = 'INSERT' then
+    -- A new profile always starts from zero, whatever the browser sent
+    new.role := 'student';
+    new.xp := 0;
+    new.level := 1;
+    new.created_at := now();
+  elsif tg_op = 'UPDATE' then
+    if new.role is distinct from old.role
+       or new.xp is distinct from old.xp
+       or new.level is distinct from old.level
+       or new.created_at is distinct from old.created_at then
+      raise exception 'role, xp, level and created_at cannot be changed directly';
+    end if;
+  end if;
+
   return new;
 end;
 $$;
 
-drop trigger if exists profiles_prevent_role_change on public.profiles;
-create trigger profiles_prevent_role_change
-  before update on public.profiles
+drop trigger if exists profiles_protect_privileged_columns on public.profiles;
+create trigger profiles_protect_privileged_columns
+  before insert or update on public.profiles
   for each row
-  execute function public.prevent_role_self_escalation();
+  execute function public.protect_profile_privileged_columns();
 
 -- Automatically create a student profile on email signup when valid metadata is provided
 create or replace function public.handle_new_user()
@@ -113,7 +137,7 @@ create policy "Users can insert own student profile"
     and role = 'student'
   );
 
--- Users can update ONLY their own profile (role lock is enforced by trigger)
+-- Users can update ONLY their own profile (role/xp/level lock is enforced by trigger)
 drop policy if exists "Users can update own profile" on public.profiles;
 create policy "Users can update own profile"
   on public.profiles

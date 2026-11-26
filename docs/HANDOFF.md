@@ -15,6 +15,9 @@
 - Created SQL migration `supabase/migrations/001_profiles.sql` with `profiles` table, username/role constraints, `handle_new_user` trigger, role self-escalation guard, strict own-row RLS, and narrow `SECURITY DEFINER` RPCs (`is_username_available`, `get_public_profile`).
 - Configured Vitest (`vitest.config.mts`, `npm test`) with unit tests for username/display-name rules, `siteConfig`, and Uzbek `U+2018` locale rules.
 
+### Fix after Milestone 1 (not committed yet)
+- `001_profiles.sql`: replaced the role-only trigger with `protect_profile_privileged_columns`. Students (Postgres roles `anon`/`authenticated`) can no longer set their own `role`, `xp`, `level` or `created_at`; new profiles are always forced to student / 0 XP / level 1. Milestone 6 must award XP through a `SECURITY DEFINER` function (or `service_role` on the server), never a plain client update.
+
 ### Current state & owner action needed before live auth testing
 - App runs locally right now in **guest mode** (`mehmon`) even without Supabase keys.
 - To enable real registration, login, and Google OAuth, the owner needs to:
