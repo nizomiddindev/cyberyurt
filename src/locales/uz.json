@@ -1,10 +1,60 @@
 {
   "meta": {
-    "title": "Kiberxavfsizlikni o'rgan",
-    "description": "O'zbekiston yoshlari uchun kiberxavfsizlik ta'lim platformasi"
+    "description": "O‘zbekiston yoshlari uchun kiberxavfsizlik ta'lim platformasi"
+  },
+  "nav": {
+    "home": "Bosh sahifa",
+    "login": "Kirish",
+    "register": "Ro‘yxatdan o‘tish",
+    "logout": "Chiqish",
+    "menu": "Menyu"
+  },
+  "roles": {
+    "student": "O‘quvchi",
+    "teacher": "O‘qituvchi",
+    "admin": "Admin",
+    "guest": "Mehmon"
   },
   "home": {
-    "title": "Kiberxavfsizlikni o'rgan",
-    "subtitle": "Tez orada"
+    "guestLabel": "Mehmon rejimi",
+    "accountLabel": "Hisob",
+    "continueGuest": "Mehmon sifatida",
+    "completeProfile": "Profilni yakunlash"
+  },
+  "auth": {
+    "loginTitle": "Kirish",
+    "registerTitle": "Ro‘yxatdan o‘tish",
+    "setupTitle": "Profilni sozlash",
+    "emailLabel": "Elektron pochta",
+    "passwordLabel": "Parol",
+    "usernameLabel": "Foydalanuvchi nomi",
+    "displayNameLabel": "Ko‘rinadigan ism",
+    "loginButton": "Kirish",
+    "registerButton": "Hisob yaratish",
+    "saveProfileButton": "Saqlash",
+    "googleButton": "Google bilan kirish",
+    "continueAsGuest": "Mehmon sifatida davom etish",
+    "noAccountLink": "Ro‘yxatdan o‘tish",
+    "haveAccountLink": "Kirish",
+    "loading": "Yuklanmoqda...",
+    "checkEmail": "Tasdiqlash xati elektron pochtangizga yuborildi.",
+    "supabaseNotConfigured": "Supabase sozlanmagan (.env.local).",
+    "errors": {
+      "generic": "Xatolik yuz berdi. Qayta urinib ko‘ring.",
+      "invalidCredentials": "Elektron pochta yoki parol noto‘g‘ri.",
+      "emailRequired": "Elektron pochta kiriting.",
+      "passwordTooShort": "Parol kamida 6 ta belgidan iborat bo‘lsin.",
+      "displayNameRequired": "Ko‘rinadigan ism kiriting.",
+      "displayNameTooLong": "Ko‘rinadigan ism 50 ta belgidan oshmasin.",
+      "usernameTaken": "Bu foydalanuvchi nomi band.",
+      "usernameRequired": "Foydalanuvchi nomini kiriting.",
+      "usernameLength": "3 dan 20 gacha belgi bo‘lsin.",
+      "usernameStartLetter": "Kichik lotin harfi bilan boshlansin.",
+      "usernameCharacters": "Faqat a-z, 0-9, _ va - ruxsat etiladi.",
+      "usernameReserved": "Bu nom band qilingan."
+    }
+  },
+  "ui": {
+    "close": "Yopish"
   }
 }
