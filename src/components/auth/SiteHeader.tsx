@@ -1,4 +1,4 @@
-import { Home } from "lucide-react";
+import { Home, Terminal as TerminalIcon } from "lucide-react";
 import { Badge, Header, LinkButton, Stack } from "@/components/ui";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { siteConfig } from "@/config/site";
@@ -12,6 +12,11 @@ function getNavItems() {
       href: "/",
       label: messages.nav.home,
       icon: <Home size={16} aria-hidden="true" />,
+    },
+    {
+      href: "/terminal",
+      label: messages.nav.terminal,
+      icon: <TerminalIcon size={16} aria-hidden="true" />,
     },
   ];
 }

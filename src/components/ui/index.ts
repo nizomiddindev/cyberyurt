@@ -10,4 +10,6 @@ export { ProgressBar } from "./ProgressBar";
 export { Tabs } from "./Tabs";
 export type { TabItem, TabsProps } from "./Tabs";
 export { TaskAccordion } from "./TaskAccordion";
+export { TerminalFrame } from "./TerminalFrame";
+export type { TerminalFileItem, TerminalFrameProps } from "./TerminalFrame";
 export { Tile } from "./Tile";

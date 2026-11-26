@@ -29,6 +29,9 @@ async function HomeStatus() {
         </Stack>
 
         <Stack direction="row" gap="sm">
+          <LinkButton href="/terminal" variant="secondary">
+            {messages.home.openTerminal}
+          </LinkButton>
           {viewer.isGuest ? (
             <>
               <LinkButton href="/kirish" variant="primary">

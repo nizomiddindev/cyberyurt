@@ -4,6 +4,7 @@
   },
   "nav": {
     "home": "Bosh sahifa",
+    "terminal": "Terminal",
     "login": "Kirish",
     "register": "Ro‘yxatdan o‘tish",
     "logout": "Chiqish",
@@ -19,7 +20,28 @@
     "guestLabel": "Mehmon rejimi",
     "accountLabel": "Hisob",
     "continueGuest": "Mehmon sifatida",
-    "completeProfile": "Profilni yakunlash"
+    "completeProfile": "Profilni yakunlash",
+    "openTerminal": "Terminal"
+  },
+  "terminal": {
+    "title": "Terminal",
+    "upload": "Yuklash",
+    "download": "Yuklab olish",
+    "reset": "Tozalash",
+    "confirmReset": "Tasdiqlash",
+    "cancel": "Bekor qilish",
+    "storageOpfs": "OPFS",
+    "storageMemory": "Vaqtinchalik",
+    "noFiles": "Fayllar yo‘q",
+    "loading": "Yuklanmoqda...",
+    "uploaded": "Yuklandi",
+    "resetDone": "Fayllar tozalandi",
+    "helpTitle": "Mavjud buyruqlar:",
+    "helpFiles": "Fayl va papkalar : ls, cd, pwd, cat, echo, mkdir, rm, cp, mv, touch",
+    "helpText": "Matn va qidiruv  : head, tail, wc, grep, find, sort, uniq",
+    "helpAnalysis": "Tahlil va kodlash: file, strings, base64, xxd, hexdump",
+    "helpSystem": "Tarmoq va tizim  : wget, clear, help, history, whoami",
+    "helpExtra": "Qo‘shimcha       : | (pipe), > va >> (yo‘naltirish), Tab, ↑/↓"
   },
   "auth": {
     "loginTitle": "Kirish",
