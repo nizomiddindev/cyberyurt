@@ -26,11 +26,26 @@ import {
 } from "@/lib/terminal/types";
 import { getMessages } from "@/locales";
 
+export interface TerminalCommandEvent {
+  command: string;
+  result: CommandResult;
+  cwd: string;
+  fs: VirtualFileSystem;
+}
+
+export interface TerminalSeedRequest {
+  id: number;
+  targetDir: string;
+  files: { name: string; bytes: Uint8Array }[];
+}
+
 export interface TerminalProps {
   username: string;
   userId: string | null;
   isGuest: boolean;
-  onCommandExecuted?: (command: string, result: CommandResult) => void;
+  onCommandExecuted?: (event: TerminalCommandEvent) => void;
+  seedRequest?: TerminalSeedRequest | null;
+  onSeedComplete?: (targetDir: string) => void;
 }
 
 function toTerminalNewlines(text: string): string {
@@ -42,6 +57,8 @@ export function Terminal({
   userId,
   isGuest,
   onCommandExecuted,
+  seedRequest,
+  onSeedComplete,
 }: TerminalProps) {
   const messages = getMessages();
   const t = messages.terminal;
@@ -51,9 +68,13 @@ export function Terminal({
   const xtermRef = useRef<XTerm | null>(null);
   const sessionRef = useRef<ShellSession | null>(null);
   const onCommandRef = useRef(onCommandExecuted);
+  const onSeedCompleteRef = useRef(onSeedComplete);
   useEffect(() => {
     onCommandRef.current = onCommandExecuted;
   }, [onCommandExecuted]);
+  useEffect(() => {
+    onSeedCompleteRef.current = onSeedComplete;
+  }, [onSeedComplete]);
 
   const [ready, setReady] = useState(false);
   const [isPersistent, setIsPersistent] = useState(false);
@@ -146,7 +167,12 @@ export function Terminal({
         term.write("\r\n");
       }
 
-      onCommandRef.current?.(raw, result);
+      onCommandRef.current?.({
+        command: raw,
+        result,
+        cwd: session.getCwd(),
+        fs: session.fs,
+      });
       await refreshFiles();
 
       lineBuffer = "";
@@ -354,6 +380,37 @@ export function Terminal({
       sessionRef.current = null;
     };
   }, [isGuest, refreshFiles, userId, username]);
+
+  const lastSeedIdRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!ready || !seedRequest || seedRequest.id === lastSeedIdRef.current) {
+      return;
+    }
+    const session = sessionRef.current;
+    if (!session) return;
+
+    lastSeedIdRef.current = seedRequest.id;
+
+    async function writeSeedFiles() {
+      if (!session || !seedRequest) return;
+      const absDir = resolvePath(
+        seedRequest.targetDir,
+        session.fs.homeDir,
+        session.fs.homeDir,
+      );
+      await session.fs.mkdir(absDir, true);
+      for (const item of seedRequest.files) {
+        const safeName = sanitizeUploadName(item.name);
+        await session.fs.writeFile(`${absDir}/${safeName}`, item.bytes);
+      }
+      await refreshFiles();
+      setStatusMessage(`${t.uploaded}: ${seedRequest.targetDir}`);
+      onSeedCompleteRef.current?.(seedRequest.targetDir);
+    }
+
+    void writeSeedFiles();
+  }, [ready, refreshFiles, seedRequest, t.uploaded]);
 
   async function handleUploadChange(event: ChangeEvent<HTMLInputElement>) {
     const session = sessionRef.current;

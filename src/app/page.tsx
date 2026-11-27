@@ -29,6 +29,9 @@ async function HomeStatus() {
         </Stack>
 
         <Stack direction="row" gap="sm">
+          <LinkButton href="/darslar" variant="secondary">
+            {messages.home.openLessons}
+          </LinkButton>
           <LinkButton href="/terminal" variant="secondary">
             {messages.home.openTerminal}
           </LinkButton>

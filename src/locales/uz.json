@@ -4,6 +4,8 @@
   },
   "nav": {
     "home": "Bosh sahifa",
+    "lessons": "Darslar",
+    "glossary": "Lug‘at",
     "terminal": "Terminal",
     "login": "Kirish",
     "register": "Ro‘yxatdan o‘tish",
@@ -21,7 +23,38 @@
     "accountLabel": "Hisob",
     "continueGuest": "Mehmon sifatida",
     "completeProfile": "Profilni yakunlash",
+    "openLessons": "Darslar",
     "openTerminal": "Terminal"
+  },
+  "lessons": {
+    "title": "Darslar",
+    "scenarioTitle": "Senariy",
+    "prerequisitesTitle": "Oldingi darslar",
+    "done": "Bajarildi",
+    "notDone": "Bajarilmagan",
+    "simplerButton": "Tushunmadim",
+    "normalButton": "Asosiy matn",
+    "checkAnswer": "Tekshirish",
+    "answerPlaceholder": "Javobingiz",
+    "correctFeedback": "To‘g‘ri!",
+    "wrongTitle": "Nega xato?",
+    "showTerminal": "Terminalni ko‘rsatish",
+    "hideTerminal": "Terminalni yashirish",
+    "terminalTaskLabel": "Terminal topshirig‘i",
+    "terminalAutoDone": "Topshiriq bajarildi!",
+    "nextStep": "Keyingi",
+    "prevStep": "Oldingi",
+    "progressLabel": "Dars jarayoni",
+    "backToLessons": "Barcha darslar",
+    "guestNotSaved": "Mehmon rejimida natija saqlanmaydi.",
+    "notFound": "Dars topilmadi."
+  },
+  "glossary": {
+    "title": "Lug‘at",
+    "searchLabel": "Qidirish",
+    "searchPlaceholder": "Atama yozing...",
+    "analogyLabel": "O‘xshatish",
+    "empty": "Hech narsa topilmadi."
   },
   "terminal": {
     "title": "Terminal",
