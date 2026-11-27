@@ -12,14 +12,16 @@ import { getMessages } from "@/locales";
 
 export function ChallengeList({
   challenges,
+  initialCategory = "all",
 }: {
   challenges: PublicChallengeSummary[];
+  initialCategory?: CtfCategory | "all";
 }) {
   const messages = getMessages();
   const t = messages.ctf;
 
   const [selectedCategory, setSelectedCategory] = useState<CtfCategory | "all">(
-    "all",
+    initialCategory,
   );
   const [selectedDifficulty, setSelectedDifficulty] = useState<
     CtfDifficulty | "all"

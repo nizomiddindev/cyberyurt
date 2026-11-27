@@ -4,13 +4,35 @@ import { ChallengeList } from "@/components/ctf/ChallengeList";
 import { getCurrentViewer } from "@/lib/auth/viewer";
 import { getAllServerChallenges } from "@/lib/ctf/loader";
 import { getUserCtfState } from "@/lib/ctf/progress";
-import type { PublicChallengeSummary } from "@/lib/ctf/types";
+import {
+  CTF_CATEGORIES,
+  type CtfCategory,
+  type PublicChallengeSummary,
+} from "@/lib/ctf/types";
 import { getMessages } from "@/locales";
 
-async function PracticeCatalog() {
-  const viewer = await getCurrentViewer();
+function parseCategoryParam(
+  raw: string | string[] | undefined,
+): CtfCategory | "all" {
+  const val = Array.isArray(raw) ? raw[0] : raw;
+  if (val && (CTF_CATEGORIES as readonly string[]).includes(val)) {
+    return val as CtfCategory;
+  }
+  return "all";
+}
+
+async function PracticeCatalog({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const [viewer, resolvedParams] = await Promise.all([
+    getCurrentViewer(),
+    searchParams,
+  ]);
   const serverChallenges = getAllServerChallenges();
   const ctfState = await getUserCtfState(viewer.userId);
+  const initialCategory = parseCategoryParam(resolvedParams.kategoriya);
 
   const summaries: PublicChallengeSummary[] = serverChallenges.map((c) => ({
     slug: c.slug,
@@ -21,10 +43,15 @@ async function PracticeCatalog() {
     solved: Object.prototype.hasOwnProperty.call(ctfState.solves, c.slug),
   }));
 
-  return <ChallengeList challenges={summaries} />;
+  return (
+    <ChallengeList
+      challenges={summaries}
+      initialCategory={initialCategory}
+    />
+  );
 }
 
-export default function PracticePage() {
+export default function PracticePage(props: PageProps<"/mashq">) {
   const messages = getMessages();
 
   return (
@@ -38,7 +65,7 @@ export default function PracticePage() {
             </Card>
           }
         >
-          <PracticeCatalog />
+          <PracticeCatalog searchParams={props.searchParams} />
         </Suspense>
       </Stack>
     </PageContainer>

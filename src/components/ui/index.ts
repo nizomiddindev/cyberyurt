@@ -15,6 +15,8 @@ export {
 } from "./Diagrams";
 export { Header } from "./Header";
 export type { HeaderNavItem, HeaderProps } from "./Header";
+export { CommandBar, ContinueCard, TileGrid } from "./HomeLayout";
+export type { CommandBarProps } from "./HomeLayout";
 export { Input } from "./Input";
 export { Divider, Notice, PageContainer, PageTitle, Stack } from "./Layout";
 export {

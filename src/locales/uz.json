@@ -20,10 +20,17 @@
     "guest": "Mehmon"
   },
   "home": {
+    "greeting": "Salom",
     "guestLabel": "Mehmon rejimi",
     "accountLabel": "Hisob",
     "continueGuest": "Mehmon sifatida",
     "completeProfile": "Profilni yakunlash",
+    "continueTitle": "Davom etish",
+    "continueButton": "Davom etish",
+    "commandPlaceholder": "cd linux",
+    "commandAriaLabel": "Buyruq satri",
+    "commandRun": "O‘tish",
+    "commandUnknown": "Topilmadi",
     "openLessons": "Darslar",
     "openPractice": "Mashq",
     "openTerminal": "Terminal"
