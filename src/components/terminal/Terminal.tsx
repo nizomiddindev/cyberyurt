@@ -11,6 +11,11 @@ import {
   type TerminalFileItem,
 } from "@/components/ui";
 import { siteConfig } from "@/config/site";
+import { LineEditor } from "@/lib/terminal/line-editor";
+import {
+  getTotalStorageBytes,
+  validateUploadSizes,
+} from "@/lib/terminal/limits";
 import { MemoryFileSystem } from "@/lib/terminal/memory-fs";
 import {
   isOpfsSupported,
@@ -95,6 +100,7 @@ export function Terminal({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const xtermRef = useRef<XTerm | null>(null);
   const sessionRef = useRef<ShellSession | null>(null);
+  const editorRef = useRef<LineEditor | null>(null);
   const onCommandRef = useRef(onCommandExecuted);
   const onSeedCompleteRef = useRef(onSeedComplete);
   useEffect(() => {
@@ -169,35 +175,20 @@ export function Terminal({
       return true;
     });
 
-    let lineBuffer = "";
-    let cursorPos = 0;
-    let historyCursor = -1;
-    let historyDraft = "";
+    const editor = new LineEditor();
+    editorRef.current = editor;
     let busy = false;
 
-    const writePrompt = () => {
+    const writeFreshPrompt = () => {
       const session = sessionRef.current;
       if (!session) return;
-      term.write(session.getPrompt());
-    };
-
-    const redrawLine = (nextLine: string, nextCursor: number) => {
-      const session = sessionRef.current;
-      if (!session) return;
-      lineBuffer = nextLine;
-      cursorPos = Math.max(0, Math.min(nextCursor, nextLine.length));
-      term.write(`\r\x1b[2K${session.getPrompt()}${lineBuffer}`);
-      const moveLeft = lineBuffer.length - cursorPos;
-      if (moveLeft > 0) {
-        term.write(`\x1b[${moveLeft}D`);
-      }
+      term.write(editor.renderFresh(session.getPrompt(), term.cols));
     };
 
     const runLine = async (raw: string) => {
       const session = sessionRef.current;
       if (!session) return;
       busy = true;
-      term.write("\r\n");
 
       const result = await session.execute(raw);
 
@@ -227,121 +218,112 @@ export function Terminal({
       });
       await refreshFiles();
 
-      lineBuffer = "";
-      cursorPos = 0;
-      historyCursor = -1;
-      historyDraft = "";
       busy = false;
-      writePrompt();
+      writeFreshPrompt();
     };
 
     const handleTab = async () => {
       const session = sessionRef.current;
       if (!session || busy) return;
 
-      const beforeCursor = lineBuffer.slice(0, cursorPos);
-      const afterCursor = lineBuffer.slice(cursorPos);
+      const beforeCursor = editor.getBeforeCursor();
+      const afterCursor = editor.getAfterCursor();
       const result = await session.complete(beforeCursor);
 
       if (result.candidates.length === 0) return;
 
       if (result.completedLine !== beforeCursor) {
-        redrawLine(result.completedLine + afterCursor, result.completedLine.length);
+        const nextLine = result.completedLine + afterCursor;
+        const nextCursor = Array.from(result.completedLine).length;
+        term.write(
+          editor.setLine(nextLine, nextCursor, session.getPrompt(), term.cols),
+        );
         return;
       }
 
       if (result.candidates.length > 1) {
-        term.write(`\r\n${result.candidates.join("  ")}\r\n`);
-        redrawLine(lineBuffer, cursorPos);
+        term.write(editor.moveBelowInput());
+        term.write(`${result.candidates.join("  ")}\r\n`);
+        term.write(editor.renderFresh(session.getPrompt(), term.cols));
       }
     };
 
     const dataListener = term.onData((data) => {
-      if (busy || !sessionRef.current) return;
+      const session = sessionRef.current;
+      if (busy || !session) return;
 
-      // Handle special escape sequences first
+      const prompt = session.getPrompt();
+      const cols = term.cols;
+
+      // Handle special escape sequences and editing shortcuts
       if (data === "\x1b[A") {
         // Up arrow: previous history entry
-        const history = sessionRef.current.getHistory();
-        if (history.length === 0) return;
-        if (historyCursor === -1) {
-          historyDraft = lineBuffer;
-          historyCursor = history.length - 1;
-        } else if (historyCursor > 0) {
-          historyCursor--;
-        }
-        const entry = history[historyCursor] ?? "";
-        redrawLine(entry, entry.length);
+        term.write(editor.historyPrev(prompt, cols));
         return;
       }
 
       if (data === "\x1b[B") {
         // Down arrow: next history entry
-        if (historyCursor === -1) return;
-        const history = sessionRef.current.getHistory();
-        if (historyCursor < history.length - 1) {
-          historyCursor++;
-          const entry = history[historyCursor] ?? "";
-          redrawLine(entry, entry.length);
-        } else {
-          historyCursor = -1;
-          redrawLine(historyDraft, historyDraft.length);
-        }
+        term.write(editor.historyNext(prompt, cols));
         return;
       }
 
       if (data === "\x1b[D") {
-        if (cursorPos > 0) {
-          cursorPos--;
-          term.write("\x1b[D");
-        }
+        term.write(editor.moveLeft(prompt, cols));
         return;
       }
 
       if (data === "\x1b[C") {
-        if (cursorPos < lineBuffer.length) {
-          cursorPos++;
-          term.write("\x1b[C");
-        }
+        term.write(editor.moveRight(prompt, cols));
         return;
       }
 
       if (data === "\x1b[H" || data === "\x01") {
         // Home or Ctrl+A
-        redrawLine(lineBuffer, 0);
+        term.write(editor.moveHome(prompt, cols));
         return;
       }
 
       if (data === "\x1b[F" || data === "\x05") {
         // End or Ctrl+E
-        redrawLine(lineBuffer, lineBuffer.length);
+        term.write(editor.moveEnd(prompt, cols));
         return;
       }
 
       if (data === "\x1b[3~") {
         // Delete key
-        if (cursorPos < lineBuffer.length) {
-          const next =
-            lineBuffer.slice(0, cursorPos) + lineBuffer.slice(cursorPos + 1);
-          redrawLine(next, cursorPos);
-        }
+        term.write(editor.deleteForward(prompt, cols));
+        return;
+      }
+
+      if (data === "\x17") {
+        // Ctrl+W: delete word before cursor
+        term.write(editor.killWordBeforeCursor(prompt, cols));
+        return;
+      }
+
+      if (data === "\x15") {
+        // Ctrl+U: clear line before cursor
+        term.write(editor.killBeforeCursor(prompt, cols));
+        return;
+      }
+
+      if (data === "\x0b") {
+        // Ctrl+K: clear line after cursor
+        term.write(editor.killAfterCursor(prompt, cols));
         return;
       }
 
       if (data === "\x03") {
         // Ctrl+C
-        term.write("^C\r\n");
-        lineBuffer = "";
-        cursorPos = 0;
-        historyCursor = -1;
-        writePrompt();
+        term.write(editor.cancel(prompt, cols));
         return;
       }
 
       if (data === "\x0c") {
         // Ctrl+L
         term.clear();
-        redrawLine(lineBuffer, cursorPos);
+        term.write(editor.renderFresh(prompt, cols));
         return;
       }
 
@@ -351,38 +333,37 @@ export function Terminal({
       }
 
       if (data === "\r") {
-        void runLine(lineBuffer);
+        const { line, output } = editor.submit();
+        term.write(output);
+        void runLine(line);
         return;
       }
 
       if (data === "\x7f" || data === "\b") {
-        if (cursorPos > 0) {
-          const next =
-            lineBuffer.slice(0, cursorPos - 1) + lineBuffer.slice(cursorPos);
-          redrawLine(next, cursorPos - 1);
-        }
+        term.write(editor.backspace(prompt, cols));
         return;
       }
 
       // Ignore unhandled escape sequences
       if (data.startsWith("\x1b")) return;
 
-      // Insert printable characters (handles pasted text too).
-      // Newlines/tabs become spaces; any other control character is dropped so it
-      // cannot hide inside a command.
-      const cleaned = data
-        .replace(/\r\n|\r|\n|\t/g, " ")
-        .replace(/[\x00-\x1f\x7f]/g, "");
-      if (cleaned.length > 0) {
-        const next =
-          lineBuffer.slice(0, cursorPos) + cleaned + lineBuffer.slice(cursorPos);
-        redrawLine(next, cursorPos + cleaned.length);
+      // Insert printable characters (handles pasted text too)
+      const seq = editor.insert(data, prompt, cols);
+      if (seq) {
+        term.write(seq);
       }
     });
 
     resizeObserver = new ResizeObserver(() => {
       try {
         fitAddon.fit();
+        const session = sessionRef.current;
+        if (session && !busy) {
+          const seq = editor.handleResize(session.getPrompt(), term.cols);
+          if (seq) {
+            term.write(seq);
+          }
+        }
       } catch {
         // Ignore fit errors during unmount
       }
@@ -421,7 +402,7 @@ export function Terminal({
       setIsPersistent(fs.isPersistent);
       setReady(true);
       await refreshFiles();
-      writePrompt();
+      writeFreshPrompt();
       term.focus();
     }
 
@@ -434,6 +415,7 @@ export function Terminal({
       term.dispose();
       xtermRef.current = null;
       sessionRef.current = null;
+      editorRef.current = null;
     };
   }, [isGuest, refreshFiles, userId, username]);
 
@@ -481,19 +463,42 @@ export function Terminal({
     const selected = event.target.files;
     if (!session || !selected || selected.length === 0) return;
 
-    const uploadedNames: string[] = [];
-    for (const file of Array.from(selected)) {
-      const safeName = sanitizeUploadName(file.name);
-      const destPath = resolvePath(safeName, session.getCwd(), session.fs.homeDir);
-      const bytes = new Uint8Array(await file.arrayBuffer());
-      await session.fs.writeFile(destPath, bytes);
-      uploadedNames.push(safeName);
-    }
+    const fileArray = Array.from(selected);
 
-    event.target.value = "";
-    await refreshFiles();
-    setStatusMessage(`${t.uploaded}: ${uploadedNames.join(", ")}`);
-    xtermRef.current?.focus();
+    try {
+      const currentTotal = await getTotalStorageBytes(session.fs);
+      const sizeCheck = validateUploadSizes(fileArray, currentTotal);
+      if (!sizeCheck.ok) {
+        setStatusMessage(
+          sizeCheck.reason === "fileTooLarge"
+            ? `${sizeCheck.fileName}: ${t.uploadTooLarge}`
+            : t.uploadQuotaExceeded,
+        );
+        return;
+      }
+
+      const uploadedNames: string[] = [];
+      for (const file of fileArray) {
+        const safeName = sanitizeUploadName(file.name);
+        const destPath = resolvePath(
+          safeName,
+          session.getCwd(),
+          session.fs.homeDir,
+        );
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        await session.fs.writeFile(destPath, bytes);
+        uploadedNames.push(safeName);
+      }
+
+      await refreshFiles();
+      setStatusMessage(`${t.uploaded}: ${uploadedNames.join(", ")}`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      setStatusMessage(msg ? `${t.uploadFailed}: ${msg}` : t.uploadFailed);
+    } finally {
+      event.target.value = "";
+      xtermRef.current?.focus();
+    }
   }
 
   async function handleDownloadFile(path: string) {
@@ -529,7 +534,12 @@ export function Terminal({
 
     if (term) {
       term.clear();
-      term.write(`\r\x1b[2K${session.getPrompt()}`);
+      if (editorRef.current) {
+        editorRef.current.resetAll();
+        term.write(editorRef.current.renderFresh(session.getPrompt(), term.cols));
+      } else {
+        term.write(`\r\x1b[2K${session.getPrompt()}`);
+      }
       term.focus();
     }
   }

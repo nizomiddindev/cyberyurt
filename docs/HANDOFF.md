@@ -41,11 +41,11 @@
 - Live Supabase writes/reads for `002`, `003`, and `004` migrations are pending owner running those 3 SQL files in Supabase SQL Editor.
 - Full live Supabase email signup flow still postponed from Milestone 1 (Supabase "Confirm email" email delivery).
 
-### Deferred security fixes from the M2 review (owner chose: build first, fix later — DO NOT FORGET)
-- Upload has NO size limit yet (required: 5 MB per file, 50 MB total, check before `file.arrayBuffer()`) — `src/components/terminal/Terminal.tsx` `handleUploadChange`.
-- Upload errors are not caught (uploading while cwd is `/` fails silently).
-- Path-escape tests are missing (code is safe by reading, but tests trying `../../`, `/users/<other-id>`, `/home/otheruser` must be added).
-- `wget` accepts `http://`; should be https-only except `http://localhost` in dev.
+### Terminal line-editor & security hardening (2026-11-27)
+- Moved terminal line editing into pure, unit-tested `src/lib/terminal/line-editor.ts` with proper multi-row wrapping, exact wrap-boundary handling, Uzbek character width (`o‘`, `g‘` = 1 col per char), resize reflow, and Ctrl+W / Ctrl+U / Ctrl+K shortcuts.
+- Enforced upload limits (5 MB/file, 50 MB total in `src/lib/terminal/limits.ts`) before `file.arrayBuffer()`, caught upload write errors (e.g. uploading while `cwd` is `/`), restricted `MemoryFileSystem` writes to `~` and `/tmp`, hardened `wget` to HTTPS-only (except `http://localhost` in dev), and added comprehensive tests (`line-editor.test.ts`, `security.test.ts`).
+
+### Deferred security fixes (owner chose: build first, fix later — DO NOT FORGET)
 - (From M6 review) `profiles.class_name` is still editable by the student (own-row update policy; the trigger only locks role/xp/level/created_at). A stranger could set any class_name from the browser console and see that class's "Sinfim" list, linking usernames to a real class/school. Before any class gets real students: add `class_name` to `protect_profile_privileged_columns` (new migration) so only teacher tools / join codes (SECURITY DEFINER) can set it.
 
 ### Rules later milestones must keep

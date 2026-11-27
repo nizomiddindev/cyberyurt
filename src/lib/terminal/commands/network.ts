@@ -16,6 +16,17 @@ export function isAllowedWgetUrl(
     return { allowed: false, reason: "missing URL" };
   }
 
+  if (trimmed.startsWith("//")) {
+    return { allowed: false, reason: "protocol-relative URLs are not allowed" };
+  }
+
+  let originUrl: URL | null = null;
+  try {
+    originUrl = new URL(allowedOrigin);
+  } catch {
+    originUrl = null;
+  }
+
   let parsed: URL;
   try {
     parsed = trimmed.startsWith("/")
@@ -25,24 +36,36 @@ export function isAllowedWgetUrl(
     return { allowed: false, reason: "invalid URL" };
   }
 
-  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-    return { allowed: false, reason: "only http/https URLs are allowed" };
-  }
-
-  let originHostname = "";
-  try {
-    originHostname = new URL(allowedOrigin).hostname.toLowerCase();
-  } catch {
-    originHostname = "";
+  if (parsed.username || parsed.password) {
+    return { allowed: false, reason: "credentials in URL are not allowed" };
   }
 
   const host = parsed.hostname.toLowerCase();
+  const originHost = originUrl ? originUrl.hostname.toLowerCase() : "";
+  const isLocalhostHttpOrigin =
+    originUrl !== null &&
+    originUrl.protocol === "http:" &&
+    (originHost === "localhost" || originHost === "127.0.0.1");
+
+  if (parsed.protocol === "https:") {
+    // HTTPS is allowed for allowed hosts
+  } else if (parsed.protocol === "http:") {
+    if (!isLocalhostHttpOrigin || host !== originHost) {
+      return {
+        allowed: false,
+        reason: "only https URLs are allowed",
+      };
+    }
+  } else {
+    return { allowed: false, reason: "only https URLs are allowed" };
+  }
+
   const allowedHosts = new Set<string>([
     siteConfig.domain.toLowerCase(),
     `www.${siteConfig.domain.toLowerCase()}`,
   ]);
-  if (originHostname) {
-    allowedHosts.add(originHostname);
+  if (originHost) {
+    allowedHosts.add(originHost);
   }
 
   if (!allowedHosts.has(host)) {

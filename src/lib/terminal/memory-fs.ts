@@ -123,6 +123,21 @@ export class MemoryFileSystem implements VirtualFileSystem {
     );
   }
 
+  private isWritablePath(path: string): boolean {
+    const normalized = normalizePath(path);
+    return (
+      normalized.startsWith(`${this.homeDir}/`) ||
+      normalized.startsWith("/tmp/")
+    );
+  }
+
+  private assertWritablePath(path: string): void {
+    const normalized = normalizePath(path);
+    if (!this.isWritablePath(normalized)) {
+      throw new Error(`Permission denied: ${normalized}`);
+    }
+  }
+
   async exists(path: string): Promise<boolean> {
     return this.getNode(path) !== null;
   }
@@ -180,6 +195,7 @@ export class MemoryFileSystem implements VirtualFileSystem {
 
   async writeFile(path: string, data: Uint8Array): Promise<void> {
     const normalized = normalizePath(path);
+    this.assertWritablePath(normalized);
     const { parent, name } = this.getParentDir(normalized);
     const existing = parent.children.get(name);
     if (existing && existing.type === "dir") {
@@ -195,6 +211,7 @@ export class MemoryFileSystem implements VirtualFileSystem {
 
   async appendFile(path: string, data: Uint8Array): Promise<void> {
     const normalized = normalizePath(path);
+    this.assertWritablePath(normalized);
     const existing = this.getNode(normalized);
     if (!existing) {
       await this.writeFile(normalized, data);
@@ -212,10 +229,17 @@ export class MemoryFileSystem implements VirtualFileSystem {
 
   async mkdir(path: string, recursive = false): Promise<void> {
     const normalized = normalizePath(path);
-    if (normalized === "/") {
+    if (
+      normalized === "/" ||
+      normalized === "/home" ||
+      normalized === this.homeDir ||
+      normalized === "/tmp"
+    ) {
       if (recursive) return;
-      throw new Error("File exists: /");
+      throw new Error(`File exists: ${normalized}`);
     }
+
+    this.assertWritablePath(normalized);
 
     if (recursive) {
       this.mkdirSync(normalized);
@@ -274,6 +298,8 @@ export class MemoryFileSystem implements VirtualFileSystem {
       throw new Error(`Cannot copy directory into itself: ${normalizedSrc}`);
     }
 
+    this.assertWritablePath(normalizedDest);
+
     const { parent, name } = this.getParentDir(normalizedDest);
     const destTarget = parent.children.get(name);
     if (destTarget && destTarget.type === "dir" && srcNode.type === "file") {
@@ -312,6 +338,8 @@ export class MemoryFileSystem implements VirtualFileSystem {
     ) {
       throw new Error(`Cannot move directory into itself: ${normalizedSrc}`);
     }
+
+    this.assertWritablePath(normalizedDest);
 
     const { parent: destParent, name: destName } =
       this.getParentDir(normalizedDest);
