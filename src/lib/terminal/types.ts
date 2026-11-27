@@ -35,11 +35,18 @@ export interface FetchResponseLike {
 
 export type WgetFetcher = (url: string) => Promise<FetchResponseLike>;
 
+export interface ExecutedCommand {
+  command: string;
+  exitCode: number;
+  cwd: string;
+}
+
 export interface CommandResult {
   stdout: Uint8Array;
   stderr: string;
   exitCode: number;
   clearScreen?: boolean;
+  executedCommands?: ExecutedCommand[];
 }
 
 export interface CommandContext {

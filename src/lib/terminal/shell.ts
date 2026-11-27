@@ -1,12 +1,13 @@
 import { siteConfig } from "@/config/site";
 import { COMMAND_REGISTRY } from "@/lib/terminal/commands";
 import { completeInput, type CompletionResult } from "@/lib/terminal/completion";
-import { parseCommandLine } from "@/lib/terminal/parser";
+import { parseCommandLine, type ParsedPipeline } from "@/lib/terminal/parser";
 import { formatPromptCwd, resolvePath } from "@/lib/terminal/path";
 import {
   errResult,
   okText,
   type CommandResult,
+  type ExecutedCommand,
   type VirtualFileSystem,
   type WgetFetcher,
 } from "@/lib/terminal/types";
@@ -31,6 +32,17 @@ const defaultFetcher: WgetFetcher = async (url) => {
     arrayBuffer: () => res.arrayBuffer(),
   };
 };
+
+function concatBytes(chunks: Uint8Array[]): Uint8Array {
+  const total = chunks.reduce((sum, c) => sum + c.byteLength, 0);
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    out.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return out;
+}
 
 export class ShellSession {
   readonly fs: VirtualFileSystem;
@@ -77,36 +89,30 @@ export class ShellSession {
     return completeInput(line, this.cwd, this.fs);
   }
 
-  async execute(rawLine: string): Promise<CommandResult> {
-    const trimmed = rawLine.trim();
-    if (!trimmed) {
-      return okText("");
-    }
-
-    this.history.push(trimmed);
-
-    const parsed = parseCommandLine(trimmed, {
-      homeDir: this.fs.homeDir,
-      username: this.username,
-    });
-
-    if (parsed.error) {
-      return errResult(parsed.error, 2);
-    }
-
-    if (parsed.commands.length === 0) {
-      return okText("");
-    }
-
+  private async executePipeline(
+    pipeline: ParsedPipeline,
+    executedCommands: ExecutedCommand[],
+  ): Promise<CommandResult> {
     let stdinBytes: Uint8Array = new Uint8Array(0);
     let hasStdin = false;
     let combinedStderr = "";
     let lastResult: CommandResult = okText("");
 
-    for (const cmd of parsed.commands) {
+    for (const cmd of pipeline.commands) {
+      const cmdText =
+        cmd.args.length > 0 ? `${cmd.name} ${cmd.args.join(" ")}` : cmd.name;
       const handler = COMMAND_REGISTRY[cmd.name];
       if (!handler) {
-        return errResult(`${cmd.name}: command not found`, 127);
+        executedCommands.push({
+          command: cmdText,
+          exitCode: 127,
+          cwd: this.cwd,
+        });
+        return {
+          stdout: new Uint8Array(0),
+          stderr: `${combinedStderr}${cmd.name}: command not found\n`,
+          exitCode: 127,
+        };
       }
 
       const result = await handler(cmd.args, {
@@ -151,7 +157,16 @@ export class ShellSession {
           };
         } catch (err) {
           const msg = err instanceof Error ? err.message : "Write error";
-          return errResult(`${cmd.redirect.target}: ${msg}`);
+          executedCommands.push({
+            command: cmdText,
+            exitCode: 1,
+            cwd: this.cwd,
+          });
+          return {
+            stdout: new Uint8Array(0),
+            stderr: `${combinedStderr}${cmd.redirect.target}: ${msg}\n`,
+            exitCode: 1,
+          };
         }
       } else {
         stdinBytes = result.stdout;
@@ -161,9 +176,76 @@ export class ShellSession {
         };
       }
 
+      executedCommands.push({
+        command: cmdText,
+        exitCode: lastResult.exitCode,
+        cwd: this.cwd,
+      });
+
       hasStdin = true;
     }
 
     return lastResult;
+  }
+
+  async execute(rawLine: string): Promise<CommandResult> {
+    const trimmed = rawLine.trim();
+    if (!trimmed) {
+      return okText("");
+    }
+
+    this.history.push(trimmed);
+
+    const parsed = parseCommandLine(trimmed, {
+      homeDir: this.fs.homeDir,
+      username: this.username,
+    });
+
+    if (parsed.error) {
+      return errResult(parsed.error, 2);
+    }
+
+    if (parsed.pipelines.length === 0) {
+      return okText("");
+    }
+
+    const stdoutChunks: Uint8Array[] = [];
+    let combinedStderr = "";
+    let lastExitCode = 0;
+    let clearScreen = false;
+    const executedCommands: ExecutedCommand[] = [];
+
+    for (const pipeline of parsed.pipelines) {
+      if (pipeline.connector === "&&" && lastExitCode !== 0) {
+        continue;
+      }
+      if (pipeline.connector === "||" && lastExitCode === 0) {
+        continue;
+      }
+
+      const res = await this.executePipeline(pipeline, executedCommands);
+
+      if (res.clearScreen) {
+        clearScreen = true;
+        stdoutChunks.length = 0;
+        combinedStderr = "";
+      }
+
+      if (res.stdout.byteLength > 0) {
+        stdoutChunks.push(res.stdout);
+      }
+      if (res.stderr) {
+        combinedStderr += res.stderr;
+      }
+      lastExitCode = res.exitCode;
+    }
+
+    return {
+      stdout: concatBytes(stdoutChunks),
+      stderr: combinedStderr,
+      exitCode: lastExitCode,
+      clearScreen: clearScreen || undefined,
+      executedCommands,
+    };
   }
 }

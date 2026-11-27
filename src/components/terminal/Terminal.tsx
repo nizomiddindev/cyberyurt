@@ -210,12 +210,26 @@ export function Terminal({
         term.write("\r\n");
       }
 
-      onCommandRef.current?.({
-        command: raw,
-        result,
-        cwd: session.getCwd(),
-        fs: session.fs,
-      });
+      if (result.executedCommands && result.executedCommands.length > 0) {
+        for (const executed of result.executedCommands) {
+          onCommandRef.current?.({
+            command: executed.command,
+            result: {
+              ...result,
+              exitCode: executed.exitCode,
+            },
+            cwd: executed.cwd,
+            fs: session.fs,
+          });
+        }
+      } else {
+        onCommandRef.current?.({
+          command: raw,
+          result,
+          cwd: session.getCwd(),
+          fs: session.fs,
+        });
+      }
       await refreshFiles();
 
       busy = false;

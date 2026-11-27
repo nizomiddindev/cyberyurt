@@ -30,8 +30,12 @@ export async function completeInput(
   cwd: string,
   fs: VirtualFileSystem,
 ): Promise<CompletionResult> {
-  const lastPipeIdx = line.lastIndexOf("|");
-  const segmentStart = lastPipeIdx === -1 ? 0 : lastPipeIdx + 1;
+  const splitIdx = Math.max(
+    line.lastIndexOf("|"),
+    line.lastIndexOf(";"),
+    line.lastIndexOf("&&") !== -1 ? line.lastIndexOf("&&") + 1 : -1,
+  );
+  const segmentStart = splitIdx === -1 ? 0 : splitIdx + 1;
   const beforeSegment = line.slice(0, segmentStart);
   const segment = line.slice(segmentStart);
 

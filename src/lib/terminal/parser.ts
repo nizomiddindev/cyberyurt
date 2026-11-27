@@ -1,3 +1,5 @@
+export type ChainOperator = "&&" | "||" | ";";
+
 export interface ParsedCommand {
   name: string;
   args: string[];
@@ -7,14 +9,20 @@ export interface ParsedCommand {
   };
 }
 
-export interface ParseResult {
+export interface ParsedPipeline {
   commands: ParsedCommand[];
+  connector?: ChainOperator;
+}
+
+export interface ParseResult {
+  pipelines: ParsedPipeline[];
   error?: string;
 }
 
 type Token =
   | { kind: "word"; value: string; quoted: boolean }
   | { kind: "pipe" }
+  | { kind: "chain"; op: ChainOperator }
   | { kind: "redirect"; mode: "overwrite" | "append" };
 
 function tokenize(
@@ -75,9 +83,27 @@ function tokenize(
       continue;
     }
 
+    if (ch === "&" && input[i + 1] === "&") {
+      flush();
+      tokens.push({ kind: "chain", op: "&&" });
+      i++;
+      continue;
+    }
+
     if (ch === "|") {
       flush();
-      tokens.push({ kind: "pipe" });
+      if (input[i + 1] === "|") {
+        tokens.push({ kind: "chain", op: "||" });
+        i++;
+      } else {
+        tokens.push({ kind: "pipe" });
+      }
+      continue;
+    }
+
+    if (ch === ";") {
+      flush();
+      tokens.push({ kind: "chain", op: ";" });
       continue;
     }
 
@@ -147,23 +173,25 @@ export function parseCommandLine(
 ): ParseResult {
   const trimmed = input.trim();
   if (!trimmed) {
-    return { commands: [] };
+    return { pipelines: [] };
   }
 
   const { tokens, error } = tokenize(trimmed, env);
   if (error) {
-    return { commands: [], error };
+    return { pipelines: [], error };
   }
 
-  const commands: ParsedCommand[] = [];
+  const pipelines: ParsedPipeline[] = [];
+  let currentPipelineCommands: ParsedCommand[] = [];
+  let pendingConnector: ChainOperator | undefined;
   let words: string[] = [];
   let redirect: ParsedCommand["redirect"] | undefined;
 
-  const pushCurrent = (): string | null => {
+  const flushCommand = (unexpectedTokenLabel: string): string | null => {
     if (words.length === 0) {
-      return "syntax error near unexpected token `|'";
+      return `syntax error near unexpected token \`${unexpectedTokenLabel}'`;
     }
-    commands.push({
+    currentPipelineCommands.push({
       name: words[0],
       args: words.slice(1),
       redirect,
@@ -177,14 +205,39 @@ export function parseCommandLine(
     const token = tokens[i];
 
     if (token.kind === "pipe") {
-      const err = pushCurrent();
-      if (err) return { commands: [], error: err };
+      const err = flushCommand("|");
+      if (err) return { pipelines: [], error: err };
       if (i === tokens.length - 1) {
         return {
-          commands: [],
+          pipelines: [],
           error: "syntax error: unexpected end of pipeline",
         };
       }
+      continue;
+    }
+
+    if (token.kind === "chain") {
+      const err = flushCommand(token.op);
+      if (err) return { pipelines: [], error: err };
+
+      pipelines.push({
+        commands: currentPipelineCommands,
+        connector: pendingConnector,
+      });
+      currentPipelineCommands = [];
+
+      // Trailing single semicolon ("ls;") is valid in bash; trailing && / || is an error
+      if (i === tokens.length - 1) {
+        if (token.op === ";") {
+          return { pipelines };
+        }
+        return {
+          pipelines: [],
+          error: `syntax error near unexpected token \`newline'`,
+        };
+      }
+
+      pendingConnector = token.op;
       continue;
     }
 
@@ -192,7 +245,7 @@ export function parseCommandLine(
       const next = tokens[i + 1];
       if (!next || next.kind !== "word") {
         return {
-          commands: [],
+          pipelines: [],
           error: "syntax error: missing redirection target",
         };
       }
@@ -207,10 +260,15 @@ export function parseCommandLine(
     words.push(token.value);
   }
 
-  const finalErr = pushCurrent();
+  const finalErr = flushCommand("newline");
   if (finalErr) {
-    return { commands: [], error: finalErr };
+    return { pipelines: [], error: finalErr };
   }
 
-  return { commands };
+  pipelines.push({
+    commands: currentPipelineCommands,
+    connector: pendingConnector,
+  });
+
+  return { pipelines };
 }
