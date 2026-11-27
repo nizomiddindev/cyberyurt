@@ -33,8 +33,8 @@
 - Added unit + SQL privacy/security invariant tests (`src/lib/gamification/gamification.test.ts`).
 
 ### Supabase migrations
-- `001`–`004` have been run on the live project (verified 2026-11-27 with a read-only check).
-- PENDING (owner): run `supabase/migrations/005_lock_class_name.sql` in the SQL Editor.
+- `001`–`005` have all been run on the live project (`004` and `005` run by Claude Code in the SQL Editor on 2026-11-27, editor text hash-checked against the files; verified afterwards with the anon key: leaderboards/profile stats return 200, `get_leaderboard_class` returns permission denied).
+- Note: an earlier note here wrongly said `004` had been run; it had not until 2026-11-27.
 
 ### Pilot without classes (2026-11-27, by Claude Code)
 - Owner decision: no classes for the pilot. Removed the "Sinfim" tab from `/reyting` (only Umumiy + Haftalik).
@@ -51,14 +51,13 @@
 - Added shell command chaining (`&&`, `||`, `;`) to `src/lib/terminal/parser.ts`, `shell.ts`, and `completion.ts` (combining with pipes and `>`/`>>`, preserving quoted operators, propagating `cd` across chains, reporting each executed command in `executedCommands` for lesson auto-complete, and returning bash-like syntax errors); tested in `src/lib/terminal/chaining.test.ts`.
 
 ### Deferred security fixes
-- None open in code. (`class_name` is locked by `005`; the owner still has to run that file.)
+- None open. (`class_name` is locked by `005`, which is applied.)
 
 ### Rules later milestones must keep
 - XP/level can only change through a `SECURITY DEFINER` SQL function or `service_role` on the server; the `profiles` trigger blocks direct client writes.
 - The GitHub repo is PUBLIC: plaintext flags must never be committed. Only SHA-256 hashes go in the repo/database, and `submit_ctf_flag` hashes `p_flag` inside Postgres.
 
 ## Next step
-- Owner runs `005_lock_class_name.sql` in Supabase.
 - Before the pilot class: test the full email signup flow live (decide on "Confirm email"; if turned off for testing it MUST be turned back on).
 
 ## Open questions
