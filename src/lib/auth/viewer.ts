@@ -7,6 +7,9 @@ export const GUEST_VIEWER: Viewer = {
   username: GUEST_USERNAME,
   displayName: null,
   role: "guest",
+  xp: 0,
+  level: 1,
+  hasClass: false,
   needsProfileSetup: false,
 };
 
@@ -37,6 +40,9 @@ export async function getCurrentViewer(): Promise<Viewer> {
       username: GUEST_USERNAME,
       displayName: null,
       role: "student",
+      xp: 0,
+      level: 1,
+      hasClass: false,
       needsProfileSetup: true,
     };
   }
@@ -47,6 +53,9 @@ export async function getCurrentViewer(): Promise<Viewer> {
     username: profile.username,
     displayName: profile.display_name,
     role: profile.role,
+    xp: profile.xp ?? 0,
+    level: profile.level ?? 1,
+    hasClass: Boolean(profile.class_name?.trim()),
     needsProfileSetup: false,
   };
 }

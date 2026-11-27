@@ -1,35 +1,36 @@
 # Handoff
 
 ## Status (2026-11-27)
-- **Milestone 1 completed** (reviewed and committed: `4ff9cf9`, `c75389b`).
+- **Milestone 1 completed** (`4ff9cf9`, `c75389b`).
 - **Milestone 2 completed** (`2f4394d`).
 - **Milestone 3 completed** (`4813017`).
-- **Milestone 4 completed** (lint, `validate:lessons`, `validate:challenges`, 37 unit tests, and production build all pass).
+- **Milestone 4 completed** (`83baeeb`, security fix `7b1420e`).
+- **Milestone 5 completed** (`39cfadf`).
+- **Milestone 6 completed** (all 6 core milestones from `docs/SPEC.md` built; lint, validators, 45 unit tests, and production build all pass).
 - Design: Still TEMPORARY plain neutral-gray Tailwind inside `src/components/ui/`. Final design system will replace `src/components/ui/` later.
 
-### What was done in Milestone 3
-- Built Markdown lesson & glossary engine (`src/lib/lessons/types.ts`, `parser.ts`, `loader.ts`, `progress.ts`) supporting `Path > Module > Lesson > Task`, `[[slug]]` / `[[slug|label]]` first-use glossary popovers (hover + tap), `"Tushunmadim"` simpler versions, wrong-answer explanations, prerequisites with done/not-done badges, and terminal task auto-completion.
-- Added code-rendered visual diagram components in `src/components/ui/Diagrams.tsx` (`::diagram tree` with clickable cards, `::diagram flow`, `::steps` with `"Keyingi"`/`"Oldingi"`, `::compare`) and lesson UI helpers in `src/components/ui/LessonLayout.tsx`.
-- Added 13 Uzbek glossary files in `content/glossary/*.md` and 3 real beginner-first Uzbek lessons in `content/lessons/`: `"Fayl nima?"` (`0-daraja`), `"Terminal bilan tanishuv"` (`0-daraja`), and `"SOC nima?"` (`Kiberxavfsizlik asoslari`).
-- Built `/darslar`, `/darslar/[slug]`, `/lugat` (A–Z with search), `POST /api/lessons/progress`, `supabase/migrations/002_lesson_progress.sql` (strict RLS), `scripts/validate-lessons.mjs` (runs in `prebuild`), and unit tests (`src/lib/lessons/lessons.test.ts`).
+### What was done in Milestone 5
+- Built home page command bar parser (`src/lib/home/command-bar.ts`) supporting `cd <category>` (all 8 CTF categories + `darslar`, `mashq`, `lugat`, `terminal`, `reyting`) and `ls`, plus continue-lesson selector (`src/lib/home/continue.ts`).
+- Added plain UI components `CommandBar`, `TileGrid`, and `ContinueCard` in `src/components/ui/HomeLayout.tsx` and client bar `src/components/home/HomeCommandBar.tsx`.
+- Updated `/` (`src/app/page.tsx`) to show minimal greeting (`Salom, <username>`), terminal-style command bar, Continue card with progress bar, and all 8 CTF category tiles (icon + name only).
+- Updated `/mashq` to honor `?kategoriya=<Category>` query parameter from category tiles and `cd <category>` navigation.
+- Added unit tests (`src/lib/home/home.test.ts`).
 
-### What was done in Milestone 4
-- Added `.gitignore` rule for `content/challenges/.flags.local.json` (`*.flags.local.json`) and created safe `content/challenges/.flags.example.json` with fake placeholders. Zero plaintext flags exist anywhere in git (`challenge.yaml`, `generate.py`, `solve.py`, `files/`, DB migration, or tests).
-- Built 5 working easy CTF challenges under `content/challenges/<category>/<slug>/`:
-  - Kriptografiya: `salom-base64`, `sezar-shifri`
-  - Linux: `yashirin-fayl`, `log-ichida`
-  - Forensika: `sirli-rasm`
-- Built `scripts/validate-challenges.mjs` (wired into `prebuild`): scans for accidental `KIBER{` plaintext leaks and runs every `solve.py`, comparing `SHA-256(output)` against `flag_sha256` in `challenge.yaml`.
-- Built server CTF loader (`src/lib/ctf/loader.ts`, stripping `flag_sha256` and locked hints from browser payloads), sliding-window rate limiter (`src/lib/ctf/rate-limit.ts`), progress loader (`src/lib/ctf/progress.ts`), file-serving route (`GET /api/challenges/[slug]/files/[filename]`), server-only flag verification route (`POST /api/ctf/submit`, max 5 attempts/min/user), and hint unlock route (`POST /api/ctf/hint`).
-- Built `supabase/migrations/003_ctf.sql`: `ctf_challenges` (hashes only, zero client policies), `challenge_attempts`, `challenge_solves`, `challenge_hint_unlocks` (all RLS-protected, read-only for students), plus `SECURITY DEFINER` RPCs `submit_ctf_flag` and `unlock_ctf_hint` (revoked from `public, anon`, granted only to `authenticated`) that enforce rate limits, hash `p_flag` inside Postgres via `pgcrypto` (so knowing public `flag_sha256` from GitHub cannot solve a challenge), deduct unlocked hint costs, record solves, and award XP safely past the `profiles` trigger.
-- Built `/mashq` (category + difficulty filters), `/mashq/[slug]` (split terminal view + `"Terminalga yuklash"` copying files to `~/challenges/<slug>/` + paid hints + flag form), plain UI helpers (`src/components/ui/ChallengeLayout.tsx`), and unit tests (`src/lib/ctf/ctf.test.ts`).
+### What was done in Milestone 6
+- Created `supabase/migrations/004_xp_leaderboard.sql`:
+  - `calculate_level(p_xp)` (`floor(xp / 200) + 1`, starting at level 1) and updated `submit_ctf_flag` so verified CTF solves atomically update both `profiles.xp` and `profiles.level`. No XP is awarded from student-writable `lesson_progress`.
+  - Narrow `SECURITY DEFINER` leaderboard RPCs (`get_leaderboard_overall`, `get_leaderboard_weekly`, `get_leaderboard_class` revoked from `public, anon` and restricted to `role = 'student'` in the viewer's own class) and `get_public_profile_stats` returning ONLY `username`, `level`, `xp`, `solves_count`, `solved_slugs`, `created_at` (never `display_name`, `email`, `class_name`, or `school`). No broad `SELECT` policy added to `profiles`.
+- Built XP/level/badge/stat helpers (`src/lib/gamification/xp.ts`), Supabase RPC loaders (`src/lib/gamification/queries.ts`), plain UI components (`src/components/ui/GamificationLayout.tsx`), `/reyting` leaderboard page (tabs: `Umumiy`, `Haftalik`, `Sinfim`), and `/profil/[username]` public profile page.
+- Updated `SiteHeader` with `Reyting` nav link, clickable username profile link, and level/XP badges for signed-in users.
+- Added unit + SQL privacy/security invariant tests (`src/lib/gamification/gamification.test.ts`).
 
-### Owner SQL migrations pending in Supabase Dashboard
-1. Run `supabase/migrations/002_lesson_progress.sql` in Supabase SQL Editor (for saving logged-in lesson task progress).
-2. Run `supabase/migrations/003_ctf.sql` in Supabase SQL Editor (for saving CTF solves, hint costs, 5/min DB rate limits, and XP awards).
+### Owner SQL migrations pending in Supabase Dashboard (run in order)
+1. `supabase/migrations/002_lesson_progress.sql`
+2. `supabase/migrations/003_ctf.sql`
+3. `supabase/migrations/004_xp_leaderboard.sql`
 
 ### Known bugs / limitations
-- Live browser click-through and live Supabase writes for `002_lesson_progress.sql` and `003_ctf.sql` are pending owner testing after running the two SQL migrations.
+- Live Supabase writes/reads for `002`, `003`, and `004` migrations are pending owner running those 3 SQL files in Supabase SQL Editor.
 - Full live Supabase email signup flow still postponed from Milestone 1 (Supabase "Confirm email" email delivery).
 
 ### Deferred security fixes from the M2 review (owner chose: build first, fix later — DO NOT FORGET)
@@ -39,11 +40,11 @@
 - `wget` accepts `http://`; should be https-only except `http://localhost` in dev.
 
 ### Rules later milestones must keep
-- XP/level can only change through a `SECURITY DEFINER` SQL function or `service_role` on the server; the `profiles` trigger blocks direct client writes (M6).
-- The GitHub repo is PUBLIC: plaintext flags must never be committed. Only SHA-256 hashes go in the repo/database (M4).
+- XP/level can only change through a `SECURITY DEFINER` SQL function or `service_role` on the server; the `profiles` trigger blocks direct client writes.
+- The GitHub repo is PUBLIC: plaintext flags must never be committed. Only SHA-256 hashes go in the repo/database, and `submit_ctf_flag` hashes `p_flag` inside Postgres.
 
 ## Next step
-- Wait for owner to review M3 & M4, run `002_lesson_progress.sql` and `003_ctf.sql` in Supabase, and say `"continue"` to start **Milestone 5** (Home page after login: greeting, terminal-style command bar navigating with `cd <category>`, continue card, category tiles with icon + name only).
+- Wait for owner to run `002_lesson_progress.sql`, `003_ctf.sql`, and `004_xp_leaderboard.sql` in Supabase and test M5 & M6. Next priorities after that: fix the deferred M2 security items above and/or swap in the final design system in `src/components/ui/`.
 
 ## Open questions
 - Domain `cyberyurt.com` not bought yet.

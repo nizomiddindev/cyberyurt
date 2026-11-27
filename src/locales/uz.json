@@ -6,6 +6,7 @@
     "home": "Bosh sahifa",
     "lessons": "Darslar",
     "practice": "Mashq",
+    "leaderboard": "Reyting",
     "glossary": "Lug‘at",
     "terminal": "Terminal",
     "login": "Kirish",
@@ -96,6 +97,38 @@
     "searchPlaceholder": "Atama yozing...",
     "analogyLabel": "O‘xshatish",
     "empty": "Hech narsa topilmadi."
+  },
+  "leaderboard": {
+    "title": "Reyting",
+    "tabOverall": "Umumiy",
+    "tabWeekly": "Haftalik",
+    "tabClass": "Sinfim",
+    "colRank": "#",
+    "colUser": "Foydalanuvchi",
+    "colLevel": "Daraja",
+    "colXp": "XP",
+    "colSolves": "Masalalar",
+    "empty": "Hozircha ma'lumot yo‘q.",
+    "classLoginRequired": "Sinf reytingi uchun hisobga kiring.",
+    "classNotAssigned": "Sinf belgilanmagan."
+  },
+  "profile": {
+    "levelLabel": "Daraja",
+    "levelShort": "Dar.",
+    "xpLabel": "XP",
+    "solvesLabel": "Yechilgan",
+    "badgesCountLabel": "Nishonlar",
+    "levelProgressTitle": "Keyingi daraja",
+    "badgesTitle": "Nishonlar",
+    "noBadges": "Hozircha nishonlar yo‘q.",
+    "statsTitle": "Bo‘limlar bo‘yicha",
+    "badges": {
+      "first-flag": "Birinchi bayroq",
+      "crypto-starter": "Kriptograf",
+      "linux-starter": "Linux ustasi",
+      "forensics-starter": "Detektiv",
+      "five-solves": "5 ta masala"
+    }
   },
   "terminal": {
     "title": "Terminal",

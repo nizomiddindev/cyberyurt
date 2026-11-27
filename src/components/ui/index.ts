@@ -13,6 +13,7 @@ export {
   DiagramTree,
   StepsDiagram,
 } from "./Diagrams";
+export { BadgeList, LeaderboardTable, StatGrid } from "./GamificationLayout";
 export { Header } from "./Header";
 export type { HeaderNavItem, HeaderProps } from "./Header";
 export { CommandBar, ContinueCard, TileGrid } from "./HomeLayout";

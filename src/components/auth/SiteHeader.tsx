@@ -4,6 +4,7 @@ import {
   Flag,
   Home,
   Terminal as TerminalIcon,
+  Trophy,
 } from "lucide-react";
 import { Badge, Header, LinkButton, Stack } from "@/components/ui";
 import { LogoutButton } from "@/components/auth/LogoutButton";
@@ -28,6 +29,11 @@ function getNavItems() {
       href: "/mashq",
       label: messages.nav.practice,
       icon: <Flag size={16} aria-hidden="true" />,
+    },
+    {
+      href: "/reyting",
+      label: messages.nav.leaderboard,
+      icon: <Trophy size={16} aria-hidden="true" />,
     },
     {
       href: "/lugat",
@@ -70,7 +76,20 @@ export async function SiteHeader() {
     </Stack>
   ) : (
     <Stack direction="row" gap="sm">
-      <Badge>{viewer.username}</Badge>
+      {viewer.needsProfileSetup ? (
+        <Badge>{viewer.username}</Badge>
+      ) : (
+        <LinkButton
+          href={`/profil/${encodeURIComponent(viewer.username)}`}
+          variant="ghost"
+        >
+          {viewer.username}
+        </LinkButton>
+      )}
+      <Badge>
+        {messages.profile.levelShort} {viewer.level}
+      </Badge>
+      <Badge>{viewer.xp} XP</Badge>
       <Badge>{messages.roles[viewer.role]}</Badge>
       <LogoutButton />
     </Stack>

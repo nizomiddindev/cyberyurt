@@ -22,5 +22,8 @@ export interface Viewer {
   username: string;
   displayName: string | null;
   role: ViewerRole;
+  xp: number;
+  level: number;
+  hasClass: boolean;
   needsProfileSetup: boolean;
 }
