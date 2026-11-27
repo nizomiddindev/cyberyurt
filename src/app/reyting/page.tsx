@@ -3,8 +3,6 @@ import {
   Badge,
   Card,
   LeaderboardTable,
-  LinkButton,
-  Notice,
   PageContainer,
   PageTitle,
   Stack,
@@ -12,7 +10,6 @@ import {
 } from "@/components/ui";
 import { getCurrentViewer } from "@/lib/auth/viewer";
 import {
-  getLeaderboardClass,
   getLeaderboardOverall,
   getLeaderboardWeekly,
 } from "@/lib/gamification/queries";
@@ -23,10 +20,10 @@ async function LeaderboardContent() {
   const t = messages.leaderboard;
   const viewer = await getCurrentViewer();
 
-  const [overall, weekly, classmates] = await Promise.all([
+  // "Sinfim" (class) tab removed for the pilot: no classes yet (see DECISIONS.md).
+  const [overall, weekly] = await Promise.all([
     getLeaderboardOverall(50),
     getLeaderboardWeekly(50),
-    viewer.isGuest ? Promise.resolve([]) : getLeaderboardClass(50),
   ]);
 
   const tableLabels = {
@@ -38,21 +35,6 @@ async function LeaderboardContent() {
     solvesLabel: t.colSolves,
     emptyLabel: t.empty,
   };
-
-  const classPanel = viewer.isGuest ? (
-    <Stack gap="sm">
-      <Notice>{t.classLoginRequired}</Notice>
-      <Stack direction="row" gap="sm">
-        <LinkButton href="/kirish" variant="primary">
-          {messages.nav.login}
-        </LinkButton>
-      </Stack>
-    </Stack>
-  ) : !viewer.hasClass ? (
-    <Notice>{t.classNotAssigned}</Notice>
-  ) : (
-    <LeaderboardTable entries={classmates} {...tableLabels} />
-  );
 
   return (
     <Tabs
@@ -67,11 +49,6 @@ async function LeaderboardContent() {
           id: "haftalik",
           label: t.tabWeekly,
           content: <LeaderboardTable entries={weekly} {...tableLabels} />,
-        },
-        {
-          id: "sinfim",
-          label: t.tabClass,
-          content: classPanel,
         },
       ]}
     />

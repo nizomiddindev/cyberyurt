@@ -83,3 +83,31 @@ describe("Milestone 6 SQL privacy & security invariants", () => {
     expect(sql.toLowerCase()).not.toContain("lesson_progress");
   });
 });
+
+describe("005: class_name locked for the pilot (no classes)", () => {
+  const sql = fs
+    .readFileSync(
+      path.join(process.cwd(), "supabase", "migrations", "005_lock_class_name.sql"),
+      "utf-8",
+    )
+    .replace(/--.*$/gm, "");
+
+  it("blocks students from setting class_name on insert and update", () => {
+    expect(sql).toContain("new.class_name := null;");
+    expect(sql).toContain("new.class_name is distinct from old.class_name");
+    expect(sql).toContain("if current_user not in ('anon', 'authenticated')");
+  });
+
+  it("keeps role, xp, level and created_at locked as in 001", () => {
+    for (const column of ["role", "xp", "level", "created_at"]) {
+      expect(sql).toContain(`new.${column} is distinct from old.${column}`);
+    }
+  });
+
+  it("closes the class leaderboard function to every client role", () => {
+    expect(sql).toContain(
+      "revoke all on function public.get_leaderboard_class(integer) from public, anon, authenticated;",
+    );
+    expect(sql.toLowerCase()).not.toContain("grant execute");
+  });
+});

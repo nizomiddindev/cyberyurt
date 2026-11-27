@@ -32,29 +32,34 @@
 - Updated `SiteHeader` with `Reyting` nav link, clickable username profile link, and level/XP badges for signed-in users.
 - Added unit + SQL privacy/security invariant tests (`src/lib/gamification/gamification.test.ts`).
 
-### Owner SQL migrations pending in Supabase Dashboard (run in order)
-1. `supabase/migrations/002_lesson_progress.sql`
-2. `supabase/migrations/003_ctf.sql`
-3. `supabase/migrations/004_xp_leaderboard.sql`
+### Supabase migrations
+- `001`–`004` have been run on the live project (verified 2026-11-27 with a read-only check).
+- PENDING (owner): run `supabase/migrations/005_lock_class_name.sql` in the SQL Editor.
+
+### Pilot without classes (2026-11-27, by Claude Code)
+- Owner decision: no classes for the pilot. Removed the "Sinfim" tab from `/reyting` (only Umumiy + Haftalik).
+- `005_lock_class_name.sql`: adds `class_name` to `protect_profile_privileged_columns` (students can no longer set it; new profiles get `null`) and revokes `get_leaderboard_class` from every client role. `getLeaderboardClass()` in `queries.ts`, the `hasClass` viewer field, and the class strings in `uz.json` are left unused for future teacher tools.
+- Re-enabling classes later needs teacher tools / join codes (SECURITY DEFINER) to set `class_name`, then a migration that grants `get_leaderboard_class` again.
 
 ### Known bugs / limitations
-- Live Supabase writes/reads for `002`, `003`, and `004` migrations are pending owner running those 3 SQL files in Supabase SQL Editor.
 - Full live Supabase email signup flow still postponed from Milestone 1 (Supabase "Confirm email" email delivery).
+- Cosmetic: in a chain like `cat nope || echo ok`, stdout is printed before stderr (`ok` appears above the cat error) because the shell prints all output after the whole line runs.
 
 ### Terminal line-editor & security hardening (2026-11-27)
 - Moved terminal line editing into pure, unit-tested `src/lib/terminal/line-editor.ts` with proper multi-row wrapping, exact wrap-boundary handling, Uzbek character width (`o‘`, `g‘` = 1 col per char), resize reflow, and Ctrl+W / Ctrl+U / Ctrl+K shortcuts.
 - Enforced upload limits (5 MB/file, 50 MB total in `src/lib/terminal/limits.ts`) before `file.arrayBuffer()`, caught upload write errors (e.g. uploading while `cwd` is `/`), restricted `MemoryFileSystem` writes to `~` and `/tmp`, hardened `wget` to HTTPS-only (except `http://localhost` in dev), and added comprehensive tests (`line-editor.test.ts`, `security.test.ts`).
 - Added shell command chaining (`&&`, `||`, `;`) to `src/lib/terminal/parser.ts`, `shell.ts`, and `completion.ts` (combining with pipes and `>`/`>>`, preserving quoted operators, propagating `cd` across chains, reporting each executed command in `executedCommands` for lesson auto-complete, and returning bash-like syntax errors); tested in `src/lib/terminal/chaining.test.ts`.
 
-### Deferred security fixes (owner chose: build first, fix later — DO NOT FORGET)
-- (From M6 review) `profiles.class_name` is still editable by the student (own-row update policy; the trigger only locks role/xp/level/created_at). A stranger could set any class_name from the browser console and see that class's "Sinfim" list, linking usernames to a real class/school. Before any class gets real students: add `class_name` to `protect_profile_privileged_columns` (new migration) so only teacher tools / join codes (SECURITY DEFINER) can set it.
+### Deferred security fixes
+- None open in code. (`class_name` is locked by `005`; the owner still has to run that file.)
 
 ### Rules later milestones must keep
 - XP/level can only change through a `SECURITY DEFINER` SQL function or `service_role` on the server; the `profiles` trigger blocks direct client writes.
 - The GitHub repo is PUBLIC: plaintext flags must never be committed. Only SHA-256 hashes go in the repo/database, and `submit_ctf_flag` hashes `p_flag` inside Postgres.
 
 ## Next step
-- Wait for owner to run `002_lesson_progress.sql`, `003_ctf.sql`, and `004_xp_leaderboard.sql` in Supabase and test M5 & M6. Next priorities after that: fix the deferred M2 security items above and/or swap in the final design system in `src/components/ui/`.
+- Owner runs `005_lock_class_name.sql` in Supabase.
+- Before the pilot class: test the full email signup flow live (decide on "Confirm email"; if turned off for testing it MUST be turned back on).
 
 ## Open questions
 - Domain `cyberyurt.com` not bought yet.
