@@ -53,6 +53,27 @@ export interface TerminalProps {
   onSeedComplete?: (targetDir: string) => void;
 }
 
+async function copyTextToClipboard(text: string): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return;
+  } catch {
+    // Clipboard API can be unavailable (older browsers, non-https); fall back below.
+  }
+  const helper = document.createElement("textarea");
+  helper.value = text;
+  helper.setAttribute("readonly", "");
+  helper.style.position = "fixed";
+  helper.style.opacity = "0";
+  document.body.appendChild(helper);
+  helper.select();
+  try {
+    document.execCommand("copy");
+  } finally {
+    document.body.removeChild(helper);
+  }
+}
+
 function toTerminalNewlines(text: string): string {
   return text.replace(/\r?\n/g, "\r\n");
 }
@@ -117,6 +138,34 @@ export function Terminal({
     term.open(container);
     fitAddon.fit();
     xtermRef.current = term;
+
+    // Copy / paste like a normal terminal:
+    // - Ctrl+C copies when text is selected, otherwise it cancels the line (^C).
+    // - Ctrl+Shift+C always copies. Ctrl+V / Ctrl+Shift+V paste.
+    // Returning false stops xterm from turning the key into a control character,
+    // so the browser's own paste event reaches xterm and arrives in onData as text.
+    term.attachCustomKeyEventHandler((event) => {
+      if (event.type !== "keydown") return true;
+      const mod = event.ctrlKey || event.metaKey;
+      if (!mod || event.altKey) return true;
+      const key = event.key.toLowerCase();
+
+      if (key === "c" && (event.shiftKey || term.hasSelection())) {
+        const selected = term.getSelection();
+        if (selected) {
+          void copyTextToClipboard(selected);
+          term.clearSelection();
+        }
+        event.preventDefault();
+        return false;
+      }
+
+      if (key === "v") {
+        return false;
+      }
+
+      return true;
+    });
 
     let lineBuffer = "";
     let cursorPos = 0;
@@ -316,8 +365,12 @@ export function Terminal({
       // Ignore unhandled escape sequences
       if (data.startsWith("\x1b")) return;
 
-      // Insert printable characters (handles pasted text too)
-      const cleaned = data.replace(/\r?\n/g, " ");
+      // Insert printable characters (handles pasted text too).
+      // Newlines/tabs become spaces; any other control character is dropped so it
+      // cannot hide inside a command.
+      const cleaned = data
+        .replace(/\r\n|\r|\n|\t/g, " ")
+        .replace(/[\x00-\x1f\x7f]/g, "");
       if (cleaned.length > 0) {
         const next =
           lineBuffer.slice(0, cursorPos) + cleaned + lineBuffer.slice(cursorPos);
