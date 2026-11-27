@@ -4,7 +4,7 @@
 - **Milestone 1 completed** (reviewed and committed: `4ff9cf9`, `c75389b`).
 - **Milestone 2 completed** (`2f4394d`).
 - **Milestone 3 completed** (`4813017`).
-- **Milestone 4 completed** (lint, `validate:lessons`, `validate:challenges`, 36 unit tests, and production build all pass).
+- **Milestone 4 completed** (lint, `validate:lessons`, `validate:challenges`, 37 unit tests, and production build all pass).
 - Design: Still TEMPORARY plain neutral-gray Tailwind inside `src/components/ui/`. Final design system will replace `src/components/ui/` later.
 
 ### What was done in Milestone 3
@@ -21,7 +21,7 @@
   - Forensika: `sirli-rasm`
 - Built `scripts/validate-challenges.mjs` (wired into `prebuild`): scans for accidental `KIBER{` plaintext leaks and runs every `solve.py`, comparing `SHA-256(output)` against `flag_sha256` in `challenge.yaml`.
 - Built server CTF loader (`src/lib/ctf/loader.ts`, stripping `flag_sha256` and locked hints from browser payloads), sliding-window rate limiter (`src/lib/ctf/rate-limit.ts`), progress loader (`src/lib/ctf/progress.ts`), file-serving route (`GET /api/challenges/[slug]/files/[filename]`), server-only flag verification route (`POST /api/ctf/submit`, max 5 attempts/min/user), and hint unlock route (`POST /api/ctf/hint`).
-- Built `supabase/migrations/003_ctf.sql`: `ctf_challenges` (hashes only, zero client policies), `challenge_attempts`, `challenge_solves`, `challenge_hint_unlocks` (all RLS-protected, read-only for students), plus `SECURITY DEFINER` RPCs `submit_ctf_flag` and `unlock_ctf_hint` that enforce rate limits, verify SHA-256 hashes, deduct unlocked hint costs, record solves, and award XP safely past the `profiles` trigger.
+- Built `supabase/migrations/003_ctf.sql`: `ctf_challenges` (hashes only, zero client policies), `challenge_attempts`, `challenge_solves`, `challenge_hint_unlocks` (all RLS-protected, read-only for students), plus `SECURITY DEFINER` RPCs `submit_ctf_flag` and `unlock_ctf_hint` (revoked from `public, anon`, granted only to `authenticated`) that enforce rate limits, hash `p_flag` inside Postgres via `pgcrypto` (so knowing public `flag_sha256` from GitHub cannot solve a challenge), deduct unlocked hint costs, record solves, and award XP safely past the `profiles` trigger.
 - Built `/mashq` (category + difficulty filters), `/mashq/[slug]` (split terminal view + `"Terminalga yuklash"` copying files to `~/challenges/<slug>/` + paid hints + flag form), plain UI helpers (`src/components/ui/ChallengeLayout.tsx`), and unit tests (`src/lib/ctf/ctf.test.ts`).
 
 ### Owner SQL migrations pending in Supabase Dashboard

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import {
   getServerChallengeBySlug,
-  sha256Hex,
   verifyFlagHash,
 } from "@/lib/ctf/loader";
 import { flagRateLimiter } from "@/lib/ctf/rate-limit";
@@ -18,7 +17,7 @@ export async function POST(request: Request) {
   const slug = typeof body.slug === "string" ? body.slug.trim() : "";
   const flag = typeof body.flag === "string" ? body.flag.trim() : "";
 
-  if (!slug || !flag) {
+  if (!slug || !flag || flag.length > 200) {
     return NextResponse.json({ status: "wrong" }, { status: 400 });
   }
 
@@ -44,12 +43,11 @@ export async function POST(request: Request) {
     );
   }
 
-  // Signed-in user: verify and record via SECURITY DEFINER RPC (strict RLS)
+  // Signed-in user: send plaintext flag over HTTPS so Postgres hashes it itself (no pass-the-hash)
   if (supabase && user) {
-    const submittedHash = sha256Hex(flag);
     const { data, error } = await supabase.rpc("submit_ctf_flag", {
       p_slug: slug,
-      p_submitted_hash: submittedHash,
+      p_flag: flag,
     });
 
     if (!error && Array.isArray(data) && data.length > 0) {

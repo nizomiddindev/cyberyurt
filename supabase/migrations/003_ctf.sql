@@ -2,6 +2,8 @@
 -- solves, and hint unlocks with strict Row-Level Security (RLS).
 -- Run this SQL in the Supabase Dashboard -> SQL Editor.
 
+create extension if not exists pgcrypto with schema extensions;
+
 -- 1. Challenge registry (stores ONLY SHA-256 hashes, NEVER plaintext flags)
 create table if not exists public.ctf_challenges (
   slug text primary key,
@@ -159,12 +161,17 @@ begin
 end;
 $$;
 
+revoke all on function public.unlock_ctf_hint(text, text) from public, anon;
 grant execute on function public.unlock_ctf_hint(text, text) to authenticated;
 
--- 6. SECURITY DEFINER function: verify flag SHA-256 hash, enforce 5/min limit, award points
+-- 6. SECURITY DEFINER function: hash p_flag inside Postgres, enforce 5/min limit, award points
+-- Note: hashes are public in GitHub, so this function accepts plaintext p_flag (never a hash)
+-- and computes SHA-256 itself to prevent pass-the-hash from the browser console.
+drop function if exists public.submit_ctf_flag(text, text);
+
 create or replace function public.submit_ctf_flag(
   p_slug text,
-  p_submitted_hash text
+  p_flag text
 )
 returns table (
   status text,
@@ -177,6 +184,7 @@ as $$
 declare
   v_uid uuid := auth.uid();
   v_expected_hash text;
+  v_submitted_hash text;
   v_base_points integer;
   v_recent_attempts integer;
   v_hint_cost integer;
@@ -188,7 +196,7 @@ begin
     return;
   end if;
 
-  if p_submitted_hash is null or p_submitted_hash !~ '^[0-9a-f]{64}$' then
+  if p_flag is null or char_length(p_flag) > 200 or char_length(trim(p_flag)) = 0 then
     return query select 'wrong'::text, 0;
     return;
   end if;
@@ -224,7 +232,9 @@ begin
     return;
   end if;
 
-  if p_submitted_hash <> v_expected_hash then
+  v_submitted_hash := encode(extensions.digest(trim(p_flag), 'sha256'), 'hex');
+
+  if v_submitted_hash <> v_expected_hash then
     insert into public.challenge_attempts (user_id, challenge_slug, is_correct)
     values (v_uid, p_slug, false);
     return query select 'wrong'::text, 0;
@@ -253,4 +263,5 @@ begin
 end;
 $$;
 
+revoke all on function public.submit_ctf_flag(text, text) from public, anon;
 grant execute on function public.submit_ctf_flag(text, text) to authenticated;

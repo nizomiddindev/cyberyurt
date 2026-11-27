@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   getAllServerChallenges,
@@ -49,6 +51,42 @@ describe("CTF Challenges & Security", () => {
     expect(verifyFlagHash(syntheticValue, hash)).toBe(true);
     expect(verifyFlagHash(`  ${syntheticValue}  `, hash)).toBe(true);
     expect(verifyFlagHash("WRONG_VALUE", hash)).toBe(false);
+  });
+
+  it("prevents pass-the-hash: knowing flag_sha256 alone must not solve a challenge", () => {
+    // Submitting the public SHA-256 hash string itself as the flag must always fail
+    for (const challenge of getAllServerChallenges()) {
+      expect(verifyFlagHash(challenge.flagSha256, challenge.flagSha256)).toBe(
+        false,
+      );
+    }
+
+    // Confirm SQL RPC hashes p_flag inside Postgres rather than accepting a pre-computed hash
+    const sql = fs.readFileSync(
+      path.join(process.cwd(), "supabase", "migrations", "003_ctf.sql"),
+      "utf-8",
+    );
+    expect(sql).toContain("p_flag text");
+    expect(sql).toContain("extensions.digest(");
+    expect(sql).not.toContain("p_submitted_hash");
+    expect(sql).toContain(
+      "revoke all on function public.submit_ctf_flag(text, text) from public, anon;",
+    );
+
+    const routeSource = fs.readFileSync(
+      path.join(
+        process.cwd(),
+        "src",
+        "app",
+        "api",
+        "ctf",
+        "submit",
+        "route.ts",
+      ),
+      "utf-8",
+    );
+    expect(routeSource).toContain("p_flag: flag");
+    expect(routeSource).not.toContain("p_submitted_hash");
   });
 
   it("enforces max 5 attempts per 60 seconds per user", () => {
