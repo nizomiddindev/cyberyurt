@@ -7,9 +7,9 @@ export interface CardProps {
 
 export function Card({ title, children }: CardProps) {
   return (
-    <section className="rounded-md border border-neutral-300 bg-white p-4 sm:p-6">
+    <section className="animate-rise rounded-2xl border border-line bg-card p-4 sm:p-6">
       {title ? (
-        <h2 className="mb-4 text-lg font-semibold text-neutral-900">{title}</h2>
+        <h2 className="mb-4 text-lg font-semibold text-ink">{title}</h2>
       ) : null}
       {children}
     </section>

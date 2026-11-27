@@ -1,0 +1,105 @@
+/*
+ * CyberYurt design tokens (variant B: deep blue + coral).
+ * The whole look of the site lives here and in src/components/ui/*.tsx.
+ * To re-theme the site, change the values below; components only use these names.
+ */
+@theme {
+  --color-page: #0b1a2e;
+  --color-deep: #081424;
+  --color-card: #12273f;
+  --color-card-hover: #173150;
+  --color-line: #1f3a5a;
+  --color-line-strong: #2d4f78;
+
+  --color-ink: #eef3fa;
+  --color-ink-muted: #a3b5cc;
+  --color-ink-subtle: #7189a6;
+
+  --color-accent: #ff7a59;
+  --color-accent-hover: #ff9273;
+  --color-accent-soft: rgb(255 122 89 / 0.14);
+  --color-on-accent: #0b1a2e;
+
+  --color-ok: #4ade80;
+  --color-ok-soft: rgb(74 222 128 / 0.12);
+  --color-bad: #f87171;
+  --color-bad-soft: rgb(248 113 113 / 0.12);
+
+  --animate-rise: cy-rise 0.35s ease-out both;
+  --animate-pop: cy-pop 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-shake: cy-shake 0.4s ease-in-out both;
+  --animate-flash: cy-flash 1.4s ease-out 0.2s both;
+
+  @keyframes cy-rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes cy-pop {
+    0% {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    55% {
+      opacity: 1;
+      transform: scale(1.06);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes cy-shake {
+    20%,
+    60% {
+      transform: translateX(-5px);
+    }
+    40%,
+    80% {
+      transform: translateX(5px);
+    }
+  }
+
+  @keyframes cy-flash {
+    0% {
+      background-color: rgb(255 122 89 / 0.38);
+    }
+    100% {
+      background-color: rgb(255 122 89 / 0.14);
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-page);
+    color: var(--color-ink);
+  }
+
+  ::selection {
+    background-color: rgb(255 122 89 / 0.35);
+  }
+}
+
+/* Children that cannot know whether motion is allowed stay calm for users who asked for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

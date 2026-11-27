@@ -9,15 +9,18 @@ export interface TileProps {
 }
 
 const tileClasses =
-  "flex min-h-14 w-full items-center gap-3 rounded-md border border-neutral-300 bg-white px-4 py-3 text-left text-sm font-medium text-neutral-900 hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900";
+  "group flex min-h-28 w-full flex-col items-center justify-center gap-3 rounded-2xl border border-line bg-card px-3 py-4 text-center text-sm font-medium text-ink transition-[transform,background-color,border-color] duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-card-hover active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
 export function Tile({ name, icon, href, onClick }: TileProps) {
   const content = (
     <>
-      <span aria-hidden="true" className="shrink-0 text-neutral-700">
+      <span
+        aria-hidden="true"
+        className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent transition-transform duration-200 group-hover:scale-110 [&_svg]:h-[22px] [&_svg]:w-[22px]"
+      >
         {icon}
       </span>
-      <span className="truncate">{name}</span>
+      <span className="max-w-full truncate">{name}</span>
     </>
   );
 

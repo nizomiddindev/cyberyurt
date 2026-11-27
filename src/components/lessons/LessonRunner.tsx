@@ -216,7 +216,11 @@ export function LessonRunner({
             key={task.id}
             title={task.title}
             defaultOpen={idx === 0}
-            badge={<Badge>{isDone ? t.done : t.notDone}</Badge>}
+            badge={
+              <Badge tone={isDone ? "success" : "neutral"}>
+                {isDone ? t.done : t.notDone}
+              </Badge>
+            }
           >
             <Stack gap="md">
               {isSimpler && task.simpler ? (
@@ -290,7 +294,9 @@ export function LessonRunner({
                       {t.showTerminal}
                     </Button>
                   ) : null}
-                  {isDone ? <Notice>{t.terminalAutoDone}</Notice> : null}
+                  {isDone ? (
+                    <Notice tone="success">{t.terminalAutoDone}</Notice>
+                  ) : null}
                 </QuestionBox>
               ) : null}
 
@@ -325,7 +331,11 @@ export function LessonRunner({
                       {t.checkAnswer}
                     </Button>
                   </Stack>
-                  {taskFeedback ? <Notice>{taskFeedback.message}</Notice> : null}
+                  {taskFeedback ? (
+                    <Notice tone={taskFeedback.ok ? "success" : "error"}>
+                      {taskFeedback.message}
+                    </Notice>
+                  ) : null}
                 </QuestionBox>
               ) : null}
             </Stack>

@@ -89,7 +89,7 @@ export async function SiteHeader() {
       <Badge>
         {messages.profile.levelShort} {viewer.level}
       </Badge>
-      <Badge>{viewer.xp} XP</Badge>
+      <Badge tone="accent">{viewer.xp} XP</Badge>
       <Badge>{messages.roles[viewer.role]}</Badge>
       <LogoutButton />
     </Stack>

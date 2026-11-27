@@ -1,9 +1,8 @@
 "use client";
 
 import type { FormEvent, ReactNode } from "react";
-import { CornerDownLeft } from "lucide-react";
+import { CornerDownLeft, PlayCircle } from "lucide-react";
 import { Button, LinkButton } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 
 export interface CommandBarProps {
@@ -28,12 +27,12 @@ export function CommandBar({
   onSubmit,
 }: CommandBarProps) {
   return (
-    <div className="rounded-md border border-neutral-300 bg-white p-3">
+    <div className="animate-rise rounded-2xl border border-line bg-deep p-2 transition-colors focus-within:border-accent/60">
       <form
         onSubmit={onSubmit}
         className="flex flex-wrap items-center gap-2 sm:flex-nowrap"
       >
-        <span className="shrink-0 font-mono text-sm font-medium text-neutral-700">
+        <span className="shrink-0 pl-2 font-mono text-sm font-medium text-accent">
           {prompt}
         </span>
         <input
@@ -45,9 +44,9 @@ export function CommandBar({
           autoCapitalize="none"
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="min-h-11 min-w-0 flex-1 rounded-md border border-neutral-300 bg-neutral-50 px-3 py-2 font-mono text-sm text-neutral-900 placeholder:text-neutral-400 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-neutral-900"
+          className="min-h-11 min-w-0 flex-1 rounded-xl bg-transparent px-2 py-2 font-mono text-sm text-ink caret-accent placeholder:text-ink-subtle focus-visible:outline-none"
         />
-        <Button type="submit" variant="primary" aria-label={submitLabel}>
+        <Button type="submit" variant="secondary" aria-label={submitLabel}>
           <CornerDownLeft size={16} aria-hidden="true" />
           <span>{submitLabel}</span>
         </Button>
@@ -55,7 +54,8 @@ export function CommandBar({
       {feedback ? (
         <p
           role="status"
-          className="mt-2 font-mono text-xs text-neutral-700"
+          key={feedback}
+          className="animate-rise px-2 pb-1 pt-2 font-mono text-xs text-ink-muted"
         >
           {feedback}
         </p>
@@ -86,27 +86,41 @@ export function ContinueCard({
   href: string;
 }) {
   return (
-    <Card title={sectionTitle}>
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="text-base font-medium text-neutral-900">
+    <section
+      aria-label={sectionTitle}
+      className="animate-rise rounded-2xl border border-line bg-card p-4 sm:p-5"
+    >
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <span
+          aria-hidden="true"
+          className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent sm:inline-flex"
+        >
+          <PlayCircle size={26} />
+        </span>
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <div className="flex items-baseline justify-between gap-3">
+            <span className="text-xs font-medium text-ink-subtle">
+              {sectionTitle}
+            </span>
+            <span className="font-mono text-xs text-ink-muted">
+              {completedTasks}/{totalTasks}
+            </span>
+          </div>
+          <span className="truncate text-lg font-semibold text-ink">
             {lessonTitle}
           </span>
-          <span className="text-xs font-medium text-neutral-600">
-            {completedTasks}/{totalTasks}
-          </span>
+          <ProgressBar
+            value={completedTasks}
+            max={totalTasks || 1}
+            label={lessonTitle}
+          />
         </div>
-        <ProgressBar
-          value={completedTasks}
-          max={totalTasks || 1}
-          label={lessonTitle}
-        />
-        <div>
-          <LinkButton href={href} variant="primary">
+        <div className="shrink-0">
+          <LinkButton href={href} variant="primary" fullWidth>
             {buttonLabel}
           </LinkButton>
         </div>
       </div>
-    </Card>
+    </section>
   );
 }

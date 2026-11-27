@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 export interface TaskAccordionProps {
   title: string;
@@ -19,25 +19,31 @@ export function TaskAccordion({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="rounded-md border border-neutral-300 bg-white">
+    <div
+      className={`overflow-hidden rounded-2xl border bg-card transition-colors ${
+        open ? "border-line-strong" : "border-line"
+      }`}
+    >
       <button
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((prev) => !prev)}
-        className="flex min-h-11 w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium text-neutral-900 hover:bg-neutral-50 cursor-pointer"
+        className="flex min-h-14 w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium text-ink hover:bg-card-hover cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
       >
-        <span className="flex items-center gap-2">
-          {open ? (
-            <ChevronDown size={18} aria-hidden="true" />
-          ) : (
-            <ChevronRight size={18} aria-hidden="true" />
-          )}
-          <span>{title}</span>
+        <span className="flex min-w-0 items-center gap-3">
+          <ChevronDown
+            size={18}
+            aria-hidden="true"
+            className={`shrink-0 text-ink-subtle transition-transform duration-200 ${
+              open ? "rotate-0 text-accent" : "-rotate-90"
+            }`}
+          />
+          <span className="text-base">{title}</span>
         </span>
-        {badge ? <span>{badge}</span> : null}
+        {badge ? <span className="shrink-0">{badge}</span> : null}
       </button>
       {open ? (
-        <div className="border-t border-neutral-200 px-4 py-3 text-sm text-neutral-800">
+        <div className="animate-rise border-t border-line px-4 py-4 text-sm text-ink">
           {children}
         </div>
       ) : null}

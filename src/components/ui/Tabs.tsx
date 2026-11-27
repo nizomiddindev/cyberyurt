@@ -25,7 +25,7 @@ export function Tabs({ items, defaultTabId }: TabsProps) {
     <div>
       <div
         role="tablist"
-        className="flex flex-wrap gap-1 border-b border-neutral-300"
+        className="inline-flex max-w-full flex-wrap gap-1 rounded-2xl border border-line bg-deep p-1"
       >
         {items.map((item) => {
           const isActive = item.id === activeTab.id;
@@ -36,10 +36,10 @@ export function Tabs({ items, defaultTabId }: TabsProps) {
               role="tab"
               aria-selected={isActive}
               onClick={() => setActiveId(item.id)}
-              className={`min-h-11 px-4 py-2 text-sm font-medium cursor-pointer border-b-2 ${
+              className={`min-h-11 rounded-xl px-4 py-2 text-sm font-medium transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent ${
                 isActive
-                  ? "border-neutral-900 text-neutral-900"
-                  : "border-transparent text-neutral-600 hover:text-neutral-900"
+                  ? "bg-card text-ink"
+                  : "text-ink-muted hover:text-ink"
               }`}
             >
               {item.label}
@@ -47,7 +47,7 @@ export function Tabs({ items, defaultTabId }: TabsProps) {
           );
         })}
       </div>
-      <div role="tabpanel" className="pt-4">
+      <div role="tabpanel" key={activeTab.id} className="animate-rise pt-4">
         {activeTab.content}
       </div>
     </div>

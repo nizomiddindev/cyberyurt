@@ -5,13 +5,13 @@ import { Badge } from "@/components/ui/Badge";
 
 export function ProseParagraph({ children }: { children: ReactNode }) {
   return (
-    <p className="text-base leading-7 text-neutral-900">{children}</p>
+    <p className="max-w-[68ch] text-base leading-8 text-ink">{children}</p>
   );
 }
 
 export function InlineCode({ children }: { children: ReactNode }) {
   return (
-    <code className="rounded border border-neutral-200 bg-neutral-100 px-1.5 py-0.5 font-mono text-sm text-neutral-900">
+    <code className="rounded-md border border-line bg-deep px-1.5 py-0.5 font-mono text-sm text-accent">
       {children}
     </code>
   );
@@ -34,9 +34,9 @@ export function LessonSplitLayout({
           : "mx-auto max-w-3xl"
       }
     >
-      <div className="flex flex-col gap-4">{left}</div>
+      <div className="flex min-w-0 flex-col gap-4">{left}</div>
       {showRight && right ? (
-        <div className="lg:sticky lg:top-4">{right}</div>
+        <div className="animate-rise min-w-0 lg:sticky lg:top-20">{right}</div>
       ) : null}
     </div>
   );
@@ -65,17 +65,35 @@ export function ChoiceList({
             aria-checked={active}
             disabled={disabled}
             onClick={() => onSelect(option)}
-            className={`flex min-h-11 w-full items-center gap-3 rounded-md border px-3 py-2 text-left text-sm cursor-pointer disabled:cursor-not-allowed ${
+            className={`flex min-h-12 w-full items-center gap-3 rounded-xl border px-3 py-2 text-left text-sm transition-colors cursor-pointer disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent ${
               active
-                ? "border-neutral-900 bg-neutral-900 text-white"
-                : "border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100"
+                ? "border-accent bg-accent-soft text-ink"
+                : "border-line bg-deep text-ink hover:border-line-strong hover:bg-card-hover"
             }`}
           >
+            <span
+              aria-hidden="true"
+              className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+                active ? "border-accent" : "border-line-strong"
+              }`}
+            >
+              {active ? (
+                <span className="animate-pop h-2.5 w-2.5 rounded-full bg-accent" />
+              ) : null}
+            </span>
             <span>{option}</span>
           </button>
         );
       })}
     </div>
+  );
+}
+
+function DoneIcon({ done }: { done: boolean }) {
+  return done ? (
+    <CheckCircle2 size={18} aria-hidden="true" className="animate-pop shrink-0 text-ok" />
+  ) : (
+    <Circle size={18} aria-hidden="true" className="shrink-0 text-ink-subtle" />
   );
 }
 
@@ -95,15 +113,13 @@ export function PrereqLink({
   return (
     <Link
       href={href}
-      className="inline-flex min-h-11 items-center gap-2 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 hover:bg-neutral-100"
+      className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-deep px-3 py-2 text-sm text-ink transition-colors hover:border-line-strong hover:bg-card-hover"
     >
-      {done ? (
-        <CheckCircle2 size={16} aria-hidden="true" />
-      ) : (
-        <Circle size={16} aria-hidden="true" />
-      )}
+      <DoneIcon done={done} />
       <span>{title}</span>
-      <Badge>{done ? doneLabel : notDoneLabel}</Badge>
+      <Badge tone={done ? "success" : "neutral"}>
+        {done ? doneLabel : notDoneLabel}
+      </Badge>
     </Link>
   );
 }
@@ -122,17 +138,13 @@ export function LessonLinkRow({
   return (
     <Link
       href={href}
-      className="flex min-h-11 items-center justify-between gap-3 rounded-md border border-neutral-300 bg-white px-4 py-3 text-sm font-medium text-neutral-900 hover:bg-neutral-100"
+      className="group flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-line bg-card px-4 py-3 text-sm font-medium text-ink transition-[transform,background-color,border-color] duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:bg-card-hover"
     >
-      <span className="flex items-center gap-2">
-        {done ? (
-          <CheckCircle2 size={16} aria-hidden="true" />
-        ) : (
-          <Circle size={16} aria-hidden="true" />
-        )}
-        <span>{title}</span>
+      <span className="flex min-w-0 items-center gap-3">
+        <DoneIcon done={done} />
+        <span className="text-base">{title}</span>
       </span>
-      <Badge>{statusLabel}</Badge>
+      <Badge tone={done ? "success" : "neutral"}>{statusLabel}</Badge>
     </Link>
   );
 }
@@ -149,12 +161,12 @@ export function GlossaryCard({
   analogyLabel: string;
 }) {
   return (
-    <article className="rounded-md border border-neutral-300 bg-white p-4">
-      <h2 className="text-base font-semibold text-neutral-900">{term}</h2>
-      <p className="mt-1.5 text-sm leading-6 text-neutral-800">{definition}</p>
+    <article className="animate-rise rounded-2xl border border-line bg-card p-4">
+      <h2 className="text-base font-semibold text-accent">{term}</h2>
+      <p className="mt-1.5 text-sm leading-6 text-ink">{definition}</p>
       {analogy ? (
-        <p className="mt-2 border-t border-neutral-200 pt-2 text-sm leading-6 text-neutral-700">
-          <strong className="font-medium text-neutral-900">
+        <p className="mt-3 border-t border-line pt-3 text-sm leading-6 text-ink-muted">
+          <strong className="font-medium text-ink">
             {analogyLabel}:{" "}
           </strong>
           {analogy}
@@ -172,8 +184,8 @@ export function QuestionBox({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-md border border-neutral-300 bg-neutral-50 p-4">
-      <p className="mb-3 text-sm font-semibold text-neutral-900">{prompt}</p>
+    <div className="rounded-2xl border border-line bg-deep/70 p-4">
+      <p className="mb-3 text-base font-medium text-ink">{prompt}</p>
       <div className="flex flex-col gap-3">{children}</div>
     </div>
   );

@@ -29,7 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="uz"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-neutral-100 text-neutral-900 font-sans flex flex-col">
+      <body className="min-h-full font-sans flex flex-col">
         <Suspense fallback={<SiteHeaderFallback />}>
           <SiteHeader />
         </Suspense>

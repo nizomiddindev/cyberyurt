@@ -5,6 +5,44 @@ import { Download, RotateCcw, Upload, X } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 
+/** Colors used by xterm.js. Kept here so the whole look lives in src/components/ui/. */
+export const terminalTheme = {
+  background: "#081424",
+  foreground: "#e6edf7",
+  cursor: "#ff7a59",
+  cursorAccent: "#081424",
+  selectionBackground: "rgba(255, 122, 89, 0.35)",
+  black: "#0b1a2e",
+  red: "#f87171",
+  green: "#4ade80",
+  yellow: "#facc15",
+  blue: "#60a5fa",
+  magenta: "#c084fc",
+  cyan: "#22d3ee",
+  white: "#e6edf7",
+  brightBlack: "#7189a6",
+  brightRed: "#fca5a5",
+  brightGreen: "#86efac",
+  brightYellow: "#fde047",
+  brightBlue: "#93c5fd",
+  brightMagenta: "#d8b4fe",
+  brightCyan: "#67e8f9",
+  brightWhite: "#ffffff",
+} as const;
+
+/**
+ * xterm.js draws on a canvas and cannot read CSS variables, so resolve the real
+ * Geist Mono family name that next/font generated.
+ */
+export function getTerminalFontFamily(): string {
+  const fallback = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
+  if (typeof window === "undefined") return fallback;
+  const resolved = getComputedStyle(document.documentElement)
+    .getPropertyValue("--font-geist-mono")
+    .trim();
+  return resolved ? `${resolved}, ${fallback}` : fallback;
+}
+
 export interface TerminalFileItem {
   path: string;
   label: string;
@@ -60,16 +98,21 @@ export function TerminalFrame({
   hiddenInputs,
 }: TerminalFrameProps) {
   return (
-    <section className="overflow-hidden rounded-md border border-neutral-300 bg-white">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-300 bg-neutral-50 px-3 py-2">
+    <section className="overflow-hidden rounded-2xl border border-line bg-deep">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-card px-3 py-2">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge>{identityLabel}</Badge>
+          <span aria-hidden="true" className="flex gap-1.5 pr-1">
+            <span className="h-2.5 w-2.5 rounded-full bg-accent" />
+            <span className="h-2.5 w-2.5 rounded-full bg-line-strong" />
+            <span className="h-2.5 w-2.5 rounded-full bg-line-strong" />
+          </span>
+          <Badge tone="accent">{identityLabel}</Badge>
           <Badge>{storageLabel}</Badge>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <Button
-            variant="secondary"
+            variant="ghost"
             onClick={onUploadClick}
             disabled={disabled}
           >
@@ -78,7 +121,7 @@ export function TerminalFrame({
           </Button>
 
           <Button
-            variant="secondary"
+            variant="ghost"
             onClick={onToggleDownload}
             disabled={disabled}
             aria-expanded={downloadOpen}
@@ -106,7 +149,7 @@ export function TerminalFrame({
             </>
           ) : (
             <Button
-              variant="secondary"
+              variant="ghost"
               onClick={onRequestReset}
               disabled={disabled}
             >
@@ -120,29 +163,30 @@ export function TerminalFrame({
       {statusMessage ? (
         <div
           role="status"
-          className="border-b border-neutral-200 bg-neutral-100 px-3 py-2 text-xs text-neutral-800"
+          key={statusMessage}
+          className="animate-rise border-b border-line bg-card px-3 py-2 text-xs text-ink-muted"
         >
           {statusMessage}
         </div>
       ) : null}
 
       {downloadOpen ? (
-        <div className="border-b border-neutral-300 bg-neutral-50 px-3 py-2">
+        <div className="animate-rise border-b border-line bg-card px-3 py-2">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs font-medium text-neutral-700">
+            <span className="text-xs font-medium text-ink-subtle">
               {downloadLabel}
             </span>
             <button
               type="button"
               aria-label={closeLabel}
               onClick={onToggleDownload}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded text-neutral-700 hover:bg-neutral-200 cursor-pointer"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-ink-muted hover:bg-card-hover hover:text-ink cursor-pointer"
             >
               <X size={16} aria-hidden="true" />
             </button>
           </div>
           {files.length === 0 ? (
-            <p className="py-2 text-sm text-neutral-600">{noFilesLabel}</p>
+            <p className="py-2 text-sm text-ink-muted">{noFilesLabel}</p>
           ) : (
             <ul className="flex max-h-48 flex-col gap-1 overflow-y-auto">
               {files.map((file) => (
@@ -150,7 +194,7 @@ export function TerminalFrame({
                   <button
                     type="button"
                     onClick={() => onDownloadFile(file.path)}
-                    className="flex min-h-11 w-full items-center justify-between rounded border border-neutral-200 bg-white px-3 py-2 text-left font-mono text-xs text-neutral-900 hover:bg-neutral-100 cursor-pointer"
+                    className="flex min-h-11 w-full items-center justify-between rounded-lg border border-line bg-deep px-3 py-2 text-left font-mono text-xs text-ink transition-colors hover:border-line-strong hover:text-accent cursor-pointer"
                   >
                     <span className="truncate">{file.label}</span>
                     <Download size={14} aria-hidden="true" className="shrink-0" />
@@ -164,7 +208,7 @@ export function TerminalFrame({
 
       <div
         ref={terminalContainerRef}
-        className="h-[60vh] min-h-[340px] max-h-[640px] w-full bg-neutral-950 p-2"
+        className="h-[60vh] min-h-[340px] max-h-[640px] w-full bg-deep p-3"
       />
 
       {hiddenInputs}

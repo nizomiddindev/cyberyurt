@@ -15,6 +15,7 @@ import {
   PageTitle,
   ProseParagraph,
   Stack,
+  type NoticeTone,
 } from "@/components/ui";
 import { TerminalLoader } from "@/components/terminal/TerminalLoader";
 import type { TerminalSeedRequest } from "@/components/terminal/Terminal";
@@ -48,6 +49,7 @@ export function ChallengeRunner({
   const [flagInput, setFlagInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [feedbackTone, setFeedbackTone] = useState<NoticeTone>("info");
   const [loadingFiles, setLoadingFiles] = useState(false);
   const [loadNotice, setLoadNotice] = useState<string | null>(null);
   const [seedRequest, setSeedRequest] = useState<TerminalSeedRequest | null>(
@@ -129,20 +131,26 @@ export function ChallengeRunner({
       };
 
       if (res.status === 429 || data.status === "rate_limited") {
+        setFeedbackTone("info");
         setFeedback(t.statusRateLimited);
       } else if (data.status === "correct") {
         setSolved(true);
         const pts = data.pointsAwarded ?? challenge.points;
+        setFeedbackTone("success");
         setFeedback(`${t.statusCorrect} +${pts} ${t.statusCorrectPoints}`);
       } else if (data.status === "already_solved") {
         setSolved(true);
+        setFeedbackTone("success");
         setFeedback(t.statusAlreadySolved);
       } else if (data.status === "wrong") {
+        setFeedbackTone("error");
         setFeedback(t.statusWrong);
       } else {
+        setFeedbackTone("info");
         setFeedback(t.statusError);
       }
     } catch {
+      setFeedbackTone("info");
       setFeedback(t.statusError);
     } finally {
       setSubmitting(false);
@@ -250,7 +258,7 @@ export function ChallengeRunner({
             >
               {t.submitFlag}
             </Button>
-            {feedback ? <Notice>{feedback}</Notice> : null}
+            {feedback ? <Notice tone={feedbackTone}>{feedback}</Notice> : null}
           </Stack>
         </form>
       </Card>

@@ -1,4 +1,5 @@
 export { Badge } from "./Badge";
+export type { BadgeTone } from "./Badge";
 export { Button, LinkButton } from "./Button";
 export { Card } from "./Card";
 export {
@@ -20,6 +21,7 @@ export { CommandBar, ContinueCard, TileGrid } from "./HomeLayout";
 export type { CommandBarProps } from "./HomeLayout";
 export { Input } from "./Input";
 export { Divider, Notice, PageContainer, PageTitle, Stack } from "./Layout";
+export type { NoticeTone } from "./Layout";
 export {
   ChoiceList,
   GlossaryCard,
@@ -35,6 +37,10 @@ export { ProgressBar } from "./ProgressBar";
 export { Tabs } from "./Tabs";
 export type { TabItem, TabsProps } from "./Tabs";
 export { TaskAccordion } from "./TaskAccordion";
-export { TerminalFrame } from "./TerminalFrame";
+export {
+  getTerminalFontFamily,
+  TerminalFrame,
+  terminalTheme,
+} from "./TerminalFrame";
 export type { TerminalFileItem, TerminalFrameProps } from "./TerminalFrame";
 export { Tile } from "./Tile";

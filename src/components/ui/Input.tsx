@@ -9,15 +9,15 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 export function Input({ id, label, error, ...props }: InputProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-neutral-900">
+      <label htmlFor={id} className="text-sm font-medium text-ink-muted">
         {label}
       </label>
       <input
         id={id}
         aria-invalid={error ? "true" : undefined}
         aria-describedby={error ? `${id}-error` : undefined}
-        className={`min-h-11 w-full rounded-md border bg-white px-3 py-2 text-base text-neutral-900 placeholder:text-neutral-400 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-neutral-900 ${
-          error ? "border-neutral-900" : "border-neutral-300"
+        className={`min-h-11 w-full rounded-xl border bg-deep px-3 py-2 text-base text-ink placeholder:text-ink-subtle transition-colors focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent ${
+          error ? "animate-shake border-bad" : "border-line hover:border-line-strong"
         }`}
         {...props}
       />
@@ -25,7 +25,7 @@ export function Input({ id, label, error, ...props }: InputProps) {
         <p
           id={`${id}-error`}
           role="alert"
-          className="text-sm font-medium text-neutral-900"
+          className="animate-rise text-sm font-medium text-bad"
         >
           {error}
         </p>

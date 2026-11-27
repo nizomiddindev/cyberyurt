@@ -7,7 +7,15 @@
 - **Milestone 4 completed** (`83baeeb`, security fix `7b1420e`).
 - **Milestone 5 completed** (`39cfadf`).
 - **Milestone 6 completed** (all 6 core milestones from `docs/SPEC.md` built; lint, validators, 45 unit tests, and production build all pass).
-- Design: Still TEMPORARY plain neutral-gray Tailwind inside `src/components/ui/`. Final design system will replace `src/components/ui/` later.
+- **Design system applied** (2026-11-27, by Claude Code): owner picked variant B "deep blue + coral" with light motion. See `docs/DESIGN.md` for the rules.
+
+### What was done in the design pass
+- `src/components/ui/theme.css`: all colors (`page`, `deep`, `card`, `line`, `ink`, `accent`, `ok`, `bad`, ...) and animations (`animate-rise`, `animate-pop`, `animate-shake`, `animate-flash`) as Tailwind v4 `@theme` tokens; imported from `src/app/globals.css`. Respects `prefers-reduced-motion`.
+- Restyled every component in `src/components/ui/` (same props as before). New optional props: `Badge tone`, `Notice tone` (`info` | `success` | `error`).
+- Diagrams animate: `::steps` has a sliding progress track, tree/flow cards appear one by one, `::compare` diff rows flash once.
+- Header highlights the active page (`usePathname` inside `Suspense`, required by Next.js 16 cache components).
+- xterm colors and font moved to `ui/TerminalFrame.tsx` (`terminalTheme`, `getTerminalFontFamily()`), fixing the terminal falling back to Courier.
+- Outside `ui/` only tiny prop changes: `LessonRunner` and `ChallengeRunner` pass `tone` to `Notice`/`Badge`; `SiteHeader` XP badge uses `tone="accent"`; `layout.tsx` body lost its gray classes.
 
 ### What was done in Milestone 5
 - Built home page command bar parser (`src/lib/home/command-bar.ts`) supporting `cd <category>` (all 8 CTF categories + `darslar`, `mashq`, `lugat`, `terminal`, `reyting`) and `ls`, plus continue-lesson selector (`src/lib/home/continue.ts`).
@@ -38,6 +46,7 @@
 - Upload errors are not caught (uploading while cwd is `/` fails silently).
 - Path-escape tests are missing (code is safe by reading, but tests trying `../../`, `/users/<other-id>`, `/home/otheruser` must be added).
 - `wget` accepts `http://`; should be https-only except `http://localhost` in dev.
+- (From M6 review) `profiles.class_name` is still editable by the student (own-row update policy; the trigger only locks role/xp/level/created_at). A stranger could set any class_name from the browser console and see that class's "Sinfim" list, linking usernames to a real class/school. Before any class gets real students: add `class_name` to `protect_profile_privileged_columns` (new migration) so only teacher tools / join codes (SECURITY DEFINER) can set it.
 
 ### Rules later milestones must keep
 - XP/level can only change through a `SECURITY DEFINER` SQL function or `service_role` on the server; the `profiles` trigger blocks direct client writes.

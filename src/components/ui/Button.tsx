@@ -5,15 +5,15 @@ type ButtonVariant = "primary" | "secondary" | "ghost";
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-neutral-900 text-white border border-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-400 disabled:border-neutral-400",
+    "bg-accent text-on-accent border border-accent hover:bg-accent-hover hover:border-accent-hover disabled:opacity-50",
   secondary:
-    "bg-white text-neutral-900 border border-neutral-300 hover:bg-neutral-100 disabled:text-neutral-400",
+    "bg-card text-ink border border-line hover:bg-card-hover hover:border-line-strong disabled:text-ink-subtle",
   ghost:
-    "bg-transparent text-neutral-900 border border-transparent hover:bg-neutral-100 disabled:text-neutral-400",
+    "bg-transparent text-ink border border-transparent hover:bg-card-hover disabled:text-ink-subtle",
 };
 
 const baseClasses =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 cursor-pointer disabled:cursor-not-allowed";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-[background-color,border-color,transform] duration-150 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent cursor-pointer disabled:cursor-not-allowed disabled:active:scale-100";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;

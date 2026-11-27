@@ -4,7 +4,12 @@ import { useCallback, useEffect, useRef, useState, type ChangeEvent } from "reac
 import { Terminal as XTerm } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
-import { TerminalFrame, type TerminalFileItem } from "@/components/ui";
+import {
+  getTerminalFontFamily,
+  TerminalFrame,
+  terminalTheme,
+  type TerminalFileItem,
+} from "@/components/ui";
 import { siteConfig } from "@/config/site";
 import { MemoryFileSystem } from "@/lib/terminal/memory-fs";
 import {
@@ -104,12 +109,8 @@ export function Terminal({
     const term = new XTerm({
       cursorBlink: true,
       fontSize: 14,
-      fontFamily: "var(--font-geist-mono), monospace",
-      theme: {
-        background: "#0a0a0a",
-        foreground: "#f5f5f5",
-        cursor: "#f5f5f5",
-      },
+      fontFamily: getTerminalFontFamily(),
+      theme: { ...terminalTheme },
     });
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
