@@ -1,0 +1,14 @@
+slug: sirli-rasm
+title: Sirli rasm
+category: Forensika
+difficulty: easy
+points: 150
+description: "rasm.png oddiy rasmga o‘xshaydi, lekin uning baytlari ichida yashirin yozuv qoldirilgan. Uni topib oching."
+flag_sha256: 3dd1c560e2fcd399689b403eb45d0bf18df05b922506e0f24ce4b06c584aea5c
+hints:
+  - id: h1
+    cost: 25
+    text: "Avval file rasm.png, keyin strings rasm.png | grep SECRET buyrug‘ini ishga tushiring."
+  - id: h2
+    cost: 35
+    text: "SECRET_B64= dan keyingi matn Base64 formatida. Uni echo <matn> | base64 -d bilan oching."

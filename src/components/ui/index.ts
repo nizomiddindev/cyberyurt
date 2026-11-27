@@ -2,6 +2,12 @@ export { Badge } from "./Badge";
 export { Button, LinkButton } from "./Button";
 export { Card } from "./Card";
 export {
+  ChallengeFileLink,
+  ChallengeRow,
+  FilterButton,
+  HintRow,
+} from "./ChallengeLayout";
+export {
   CompareDiagram,
   DiagramFlow,
   DiagramTree,

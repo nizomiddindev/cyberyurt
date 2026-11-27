@@ -2,35 +2,48 @@
 
 ## Status (2026-11-27)
 - **Milestone 1 completed** (reviewed and committed: `4ff9cf9`, `c75389b`).
-- **Milestone 2 completed** (lint, 25 unit tests, and production build all pass).
+- **Milestone 2 completed** (`2f4394d`).
+- **Milestone 3 completed** (`4813017`).
+- **Milestone 4 completed** (lint, `validate:lessons`, `validate:challenges`, 36 unit tests, and production build all pass).
 - Design: Still TEMPORARY plain neutral-gray Tailwind inside `src/components/ui/`. Final design system will replace `src/components/ui/` later.
 
-### What was done in Milestone 1 + live Supabase check
-- Config (`src/config/site.ts`), Uzbek Latin (`U+2018`) locales, plain temporary UI components in `src/components/ui/`, Supabase auth + guest mode (`mehmon`), and `supabase/migrations/001_profiles.sql` with strict RLS and privileged-column protection (`protect_profile_privileged_columns`).
-- Owner created the Supabase project (region Europe), filled `.env.local`, and ran `001_profiles.sql`.
-- Read-only live check confirmed `is_username_available`, RLS on `profiles`, `get_public_profile`, and Auth keys work. Full signup flow is postponed until email confirmation is tested/configured (note: if "Confirm email" is turned off for local dev, it MUST be turned back ON before real students use the site).
+### What was done in Milestone 3
+- Built Markdown lesson & glossary engine (`src/lib/lessons/types.ts`, `parser.ts`, `loader.ts`, `progress.ts`) supporting `Path > Module > Lesson > Task`, `[[slug]]` / `[[slug|label]]` first-use glossary popovers (hover + tap), `"Tushunmadim"` simpler versions, wrong-answer explanations, prerequisites with done/not-done badges, and terminal task auto-completion.
+- Added code-rendered visual diagram components in `src/components/ui/Diagrams.tsx` (`::diagram tree` with clickable cards, `::diagram flow`, `::steps` with `"Keyingi"`/`"Oldingi"`, `::compare`) and lesson UI helpers in `src/components/ui/LessonLayout.tsx`.
+- Added 13 Uzbek glossary files in `content/glossary/*.md` and 3 real beginner-first Uzbek lessons in `content/lessons/`: `"Fayl nima?"` (`0-daraja`), `"Terminal bilan tanishuv"` (`0-daraja`), and `"SOC nima?"` (`Kiberxavfsizlik asoslari`).
+- Built `/darslar`, `/darslar/[slug]`, `/lugat` (A–Z with search), `POST /api/lessons/progress`, `supabase/migrations/002_lesson_progress.sql` (strict RLS), `scripts/validate-lessons.mjs` (runs in `prebuild`), and unit tests (`src/lib/lessons/lessons.test.ts`).
 
-### What was done in Milestone 2
-- Installed `@xterm/xterm` and `@xterm/addon-fit` (loaded client-only via `TerminalLoader`).
-- Built raw-byte `VirtualFileSystem` layer (`src/lib/terminal/types.ts`, `path.ts`, `memory-fs.ts`, `opfs-fs.ts`):
-  - Logged-in users store files in browser OPFS keyed by Supabase user ID (`/users/<user-id>/home/`), shown as `/home/<username>`, with `~/challenges/` created by default and `navigator.storage.persist()` called.
-  - Guests (`mehmon`) use in-memory storage only (nothing saved).
-  - `/tmp` is ephemeral in-memory and cleared on every visit.
-  - Progress/XP is never stored in OPFS.
-- Built command parser (`parser.ts`), Tab completion (`completion.ts`), `ShellSession` (`shell.ts`), and all 27 commands (`commands/navigation.ts`, `files.ts`, `text.ts`, `analysis.ts`, `network.ts`, `index.ts`):
-  - `ls (-a, -l)`, `cd`, `pwd`, `cat`, `echo`, `mkdir`, `rm`, `cp`, `mv`, `touch`, `head`, `tail`, `wc`, `grep`, `find`, `sort`, `uniq`, `file`, `strings`, `base64 (-d)`, `xxd`, `hexdump`, `wget`, `clear`, `help`, `history`, `whoami`.
-  - Supports pipes (`|`), `>` and `>>` redirection, quotes, Tab completion, and Up/Down arrow history.
-  - `wget` enforces our own domain (`cyberyurt.com` + current page origin) and blocks external URLs and redirects.
-- Built plain neutral `TerminalFrame` in `src/components/ui/TerminalFrame.tsx` with Upload, Download, and Reset (with confirmation) buttons and 44px+ touch targets.
-- Built `Terminal` component (`src/components/terminal/Terminal.tsx`), dynamic loader (`TerminalLoader.tsx`), `/terminal` page (`src/app/terminal/page.tsx`), and added `Terminal` navigation links in `SiteHeader` and `/`.
-- Added unit tests for every command, shell features, and OPFS user-ID isolation / `/tmp` clearing (`src/lib/terminal/commands.test.ts`, `src/lib/terminal/opfs-fs.test.ts`).
+### What was done in Milestone 4
+- Added `.gitignore` rule for `content/challenges/.flags.local.json` (`*.flags.local.json`) and created safe `content/challenges/.flags.example.json` with fake placeholders. Zero plaintext flags exist anywhere in git (`challenge.yaml`, `generate.py`, `solve.py`, `files/`, DB migration, or tests).
+- Built 5 working easy CTF challenges under `content/challenges/<category>/<slug>/`:
+  - Kriptografiya: `salom-base64`, `sezar-shifri`
+  - Linux: `yashirin-fayl`, `log-ichida`
+  - Forensika: `sirli-rasm`
+- Built `scripts/validate-challenges.mjs` (wired into `prebuild`): scans for accidental `KIBER{` plaintext leaks and runs every `solve.py`, comparing `SHA-256(output)` against `flag_sha256` in `challenge.yaml`.
+- Built server CTF loader (`src/lib/ctf/loader.ts`, stripping `flag_sha256` and locked hints from browser payloads), sliding-window rate limiter (`src/lib/ctf/rate-limit.ts`), progress loader (`src/lib/ctf/progress.ts`), file-serving route (`GET /api/challenges/[slug]/files/[filename]`), server-only flag verification route (`POST /api/ctf/submit`, max 5 attempts/min/user), and hint unlock route (`POST /api/ctf/hint`).
+- Built `supabase/migrations/003_ctf.sql`: `ctf_challenges` (hashes only, zero client policies), `challenge_attempts`, `challenge_solves`, `challenge_hint_unlocks` (all RLS-protected, read-only for students), plus `SECURITY DEFINER` RPCs `submit_ctf_flag` and `unlock_ctf_hint` that enforce rate limits, verify SHA-256 hashes, deduct unlocked hint costs, record solves, and award XP safely past the `profiles` trigger.
+- Built `/mashq` (category + difficulty filters), `/mashq/[slug]` (split terminal view + `"Terminalga yuklash"` copying files to `~/challenges/<slug>/` + paid hints + flag form), plain UI helpers (`src/components/ui/ChallengeLayout.tsx`), and unit tests (`src/lib/ctf/ctf.test.ts`).
+
+### Owner SQL migrations pending in Supabase Dashboard
+1. Run `supabase/migrations/002_lesson_progress.sql` in Supabase SQL Editor (for saving logged-in lesson task progress).
+2. Run `supabase/migrations/003_ctf.sql` in Supabase SQL Editor (for saving CTF solves, hint costs, 5/min DB rate limits, and XP awards).
 
 ### Known bugs / limitations
-- Live browser OPFS persistence and xterm keyboard interaction have not yet been manually clicked through in a real browser (all 25 Vitest unit tests, ESLint, and Next.js production build pass).
+- Live browser click-through and live Supabase writes for `002_lesson_progress.sql` and `003_ctf.sql` are pending owner testing after running the two SQL migrations.
 - Full live Supabase email signup flow still postponed from Milestone 1 (Supabase "Confirm email" email delivery).
 
+### Deferred security fixes from the M2 review (owner chose: build first, fix later — DO NOT FORGET)
+- Upload has NO size limit yet (required: 5 MB per file, 50 MB total, check before `file.arrayBuffer()`) — `src/components/terminal/Terminal.tsx` `handleUploadChange`.
+- Upload errors are not caught (uploading while cwd is `/` fails silently).
+- Path-escape tests are missing (code is safe by reading, but tests trying `../../`, `/users/<other-id>`, `/home/otheruser` must be added).
+- `wget` accepts `http://`; should be https-only except `http://localhost` in dev.
+
+### Rules later milestones must keep
+- XP/level can only change through a `SECURITY DEFINER` SQL function or `service_role` on the server; the `profiles` trigger blocks direct client writes (M6).
+- The GitHub repo is PUBLIC: plaintext flags must never be committed. Only SHA-256 hashes go in the repo/database (M4).
+
 ## Next step
-- Wait for owner to test Milestone 2 and say `"continue"` to start **Milestone 3** (Lessons: Markdown loading, glossary + popovers + `scripts/validate-lessons` + `/lugat` page, `::diagram` / `::steps` / `::compare` components, lesson page with tasks + terminal, questions with wrong-answer explanations, `"Tushunmadim"`, prerequisites, progress saved in Supabase, and 3 real Uzbek lessons: `"Fayl nima?"`, `"Terminal bilan tanishuv"`, `"SOC nima?"`).
+- Wait for owner to review M3 & M4, run `002_lesson_progress.sql` and `003_ctf.sql` in Supabase, and say `"continue"` to start **Milestone 5** (Home page after login: greeting, terminal-style command bar navigating with `cd <category>`, continue card, category tiles with icon + name only).
 
 ## Open questions
 - Domain `cyberyurt.com` not bought yet.

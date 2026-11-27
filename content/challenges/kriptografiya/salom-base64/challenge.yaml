@@ -1,0 +1,14 @@
+slug: salom-base64
+title: Salom Base64
+category: Kriptografiya
+difficulty: easy
+points: 100
+description: "xabar.txt faylida Base64 usulida kodlangan xabar bor. Uni terminalda ochib bayroqni toping."
+flag_sha256: 4d095e7918ea6aa269d4576c52d550114af896408a872b997f11c51a96bc07a7
+hints:
+  - id: h1
+    cost: 20
+    text: "Terminalda ~/challenges/salom-base64 papkasiga o‘tib, base64 -d xabar.txt buyrug‘ini sinab ko‘ring."
+  - id: h2
+    cost: 30
+    text: "Base64 shifrlash emas, kodlashdir. -d bayrog‘i (decode) asl matnni qaytaradi."

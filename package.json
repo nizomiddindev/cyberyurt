@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/validate-lessons.mjs",
+    "prebuild": "node scripts/validate-lessons.mjs && node scripts/validate-challenges.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "validate:lessons": "node scripts/validate-lessons.mjs"
+    "validate:lessons": "node scripts/validate-lessons.mjs",
+    "validate:challenges": "node scripts/validate-challenges.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

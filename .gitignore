@@ -34,6 +34,10 @@ yarn-error.log*
 .env*
 !.env.example
 
+# local CTF plaintext flags (never commit to public repo)
+content/challenges/.flags.local.json
+*.flags.local.json
+
 # vercel
 .vercel
 

@@ -5,6 +5,7 @@
   "nav": {
     "home": "Bosh sahifa",
     "lessons": "Darslar",
+    "practice": "Mashq",
     "glossary": "Lug‘at",
     "terminal": "Terminal",
     "login": "Kirish",
@@ -24,6 +25,7 @@
     "continueGuest": "Mehmon sifatida",
     "completeProfile": "Profilni yakunlash",
     "openLessons": "Darslar",
+    "openPractice": "Mashq",
     "openTerminal": "Terminal"
   },
   "lessons": {
@@ -48,6 +50,38 @@
     "backToLessons": "Barcha darslar",
     "guestNotSaved": "Mehmon rejimida natija saqlanmaydi.",
     "notFound": "Dars topilmadi."
+  },
+  "ctf": {
+    "title": "Mashq (CTF)",
+    "allCategories": "Barchasi",
+    "difficulty": {
+      "all": "Barchasi",
+      "easy": "Oson",
+      "medium": "O‘rta",
+      "hard": "Qiyin"
+    },
+    "pointsUnit": "ball",
+    "solved": "Yechilgan",
+    "unsolved": "Yechilmagan",
+    "backToList": "Barcha masalalar",
+    "filesTitle": "Fayllar",
+    "loadIntoTerminal": "Terminalga yuklash",
+    "loadedIntoTerminal": "Fayllar terminalga yuklandi",
+    "hintsTitle": "Maslahatlar",
+    "unlockHint": "Ochish",
+    "hintCostSuffix": "ball",
+    "flagTitle": "Bayroq yuborish",
+    "flagLabel": "Bayroq",
+    "flagPlaceholder": "KIBER{...}",
+    "submitFlag": "Tekshirish",
+    "statusCorrect": "To‘g‘ri! Bayroq qabul qilindi.",
+    "statusCorrectPoints": "ball qo‘shildi.",
+    "statusAlreadySolved": "Bu masala allaqachon yechilgan.",
+    "statusWrong": "Noto‘g‘ri bayroq. Qayta urinib ko‘ring.",
+    "statusRateLimited": "Juda ko‘p urinish (daqiqasiga 5 marta). Biroz kuting.",
+    "statusError": "Xatolik yuz berdi.",
+    "guestNotSaved": "Mehmon rejimida ballar saqlanmaydi.",
+    "empty": "Bu bo‘limda masalalar yo‘q."
   },
   "glossary": {
     "title": "Lug‘at",

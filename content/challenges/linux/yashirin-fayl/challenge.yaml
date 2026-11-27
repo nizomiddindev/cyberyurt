@@ -1,0 +1,14 @@
+slug: yashirin-fayl
+title: Yashirin fayl
+category: Linux
+difficulty: easy
+points: 100
+description: "Fayllarni terminalga yuklang va papka ichidagi ko‘rinmas faylni topib uning ichidagi hex matnni oching."
+flag_sha256: 4ab6c5e32a7b09808a561a995dce27554e6013d9d81ce14bcf7fb6552144932d
+hints:
+  - id: h1
+    cost: 20
+    text: "Linuxda nuqta (.) bilan boshlanadigan fayllar oddiy ls da ko‘rinmaydi. ls -a buyrug‘idan foydalaning."
+  - id: h2
+    cost: 30
+    text: "Topilgan faylni cat .yashirin | xxd -r -p orqali oddiy matnga aylantiring."

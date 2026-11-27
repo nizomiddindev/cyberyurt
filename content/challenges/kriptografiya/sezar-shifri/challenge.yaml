@@ -1,0 +1,14 @@
+slug: sezar-shifri
+title: Sezar shifri
+category: Kriptografiya
+difficulty: easy
+points: 100
+description: "shifr.txt ichidagi harflar alifboda 13 ta o‘ringa surilgan (ROT13). Asl xabarni tiklab bayroqni toping."
+flag_sha256: 427b83d717b41b5c542eba8bc9342f81855b4fd6fd4f5f2474cd8c211fdd9f93
+hints:
+  - id: h1
+    cost: 20
+    text: "ROT13 usulida har bir lotin harfi alifboda 13 o‘rin oldinga suriladi (masalan, X -> K, V -> I)."
+  - id: h2
+    cost: 30
+    text: "Raqamlar, pastki chiziq (_) va qavslar ({ }) o‘zgarmaydi — faqat A-Z va a-z harflarini 13 o‘ringa suring."

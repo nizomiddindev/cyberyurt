@@ -1,0 +1,14 @@
+slug: log-ichida
+title: Log ichidagi iz
+category: Linux
+difficulty: easy
+points: 100
+description: "tizim.log faylida o‘nlab qatorlar bor. Xavfli ALERT yozuvini toping va undagi hex tokenni matnga aylantiring."
+flag_sha256: f3a5fa0735ab55e12bfdfaf048d0ed5822174d07e5ce93d36a89163199414706
+hints:
+  - id: h1
+    cost: 20
+    text: "grep ALERT tizim.log buyrug‘i kerakli qatorni darhol topib beradi."
+  - id: h2
+    cost: 30
+    text: "token= dan keyingi 16-lik (hex) qismni nusxalab echo <hex> | xxd -r -p bilan oching."

@@ -1,0 +1,2 @@
+Oddiy ls bu yerdagi hamma fayllarni ko‘rsatmaydi.
+Topgan hex matnni xxd -r -p bilan ochib ko‘ring.

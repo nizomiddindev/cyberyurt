@@ -32,6 +32,9 @@ async function HomeStatus() {
           <LinkButton href="/darslar" variant="secondary">
             {messages.home.openLessons}
           </LinkButton>
+          <LinkButton href="/mashq" variant="secondary">
+            {messages.home.openPractice}
+          </LinkButton>
           <LinkButton href="/terminal" variant="secondary">
             {messages.home.openTerminal}
           </LinkButton>

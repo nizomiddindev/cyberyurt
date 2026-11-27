@@ -1,4 +1,10 @@
-import { BookOpen, BookText, Home, Terminal as TerminalIcon } from "lucide-react";
+import {
+  BookOpen,
+  BookText,
+  Flag,
+  Home,
+  Terminal as TerminalIcon,
+} from "lucide-react";
 import { Badge, Header, LinkButton, Stack } from "@/components/ui";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { siteConfig } from "@/config/site";
@@ -17,6 +23,11 @@ function getNavItems() {
       href: "/darslar",
       label: messages.nav.lessons,
       icon: <BookOpen size={16} aria-hidden="true" />,
+    },
+    {
+      href: "/mashq",
+      label: messages.nav.practice,
+      icon: <Flag size={16} aria-hidden="true" />,
     },
     {
       href: "/lugat",

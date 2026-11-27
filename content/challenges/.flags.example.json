@@ -1,0 +1,7 @@
+{
+  "salom-base64": "KIBER{example_base64_flag}",
+  "sezar-shifri": "KIBER{example_caesar_flag}",
+  "yashirin-fayl": "KIBER{example_hidden_file_flag}",
+  "log-ichida": "KIBER{example_log_grep_flag}",
+  "sirli-rasm": "KIBER{example_png_strings_flag}"
+}
