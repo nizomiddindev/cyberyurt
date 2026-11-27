@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { FolderDown, Terminal as TerminalIcon } from "lucide-react";
 import {
   Badge,
@@ -24,6 +24,22 @@ import type {
   PublicChallengeHint,
 } from "@/lib/ctf/types";
 import { getMessages } from "@/locales";
+
+async function fetchChallengeFiles(
+  slug: string,
+  fileNames: string[],
+): Promise<{ name: string; bytes: Uint8Array }[]> {
+  const loadedFiles: { name: string; bytes: Uint8Array }[] = [];
+  for (const fileName of fileNames) {
+    const res = await fetch(
+      `/api/challenges/${encodeURIComponent(slug)}/files/${encodeURIComponent(fileName)}`,
+    );
+    if (!res.ok) continue;
+    const buf = await res.arrayBuffer();
+    loadedFiles.push({ name: fileName, bytes: new Uint8Array(buf) });
+  }
+  return loadedFiles;
+}
 
 export interface ChallengeRunnerProps {
   challenge: PublicChallengeDetail;
@@ -56,21 +72,40 @@ export function ChallengeRunner({
     null,
   );
 
+  // Put the challenge files into ~/challenges/<slug>/ as soon as the page opens,
+  // so the folder is never mysteriously empty (guest files live only in memory and
+  // vanish on reload). Existing files are kept, so a student's work is not overwritten.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const files = await fetchChallengeFiles(challenge.slug, challenge.files);
+        if (cancelled || files.length === 0) return;
+        setSeedRequest({
+          id: Date.now(),
+          targetDir: `~/challenges/${challenge.slug}`,
+          files,
+          onlyIfMissing: true,
+        });
+      } catch {
+        // Automatic loading is a convenience; the button still works.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [challenge.slug, challenge.files]);
+
   async function handleLoadIntoTerminal() {
     setLoadingFiles(true);
     setLoadNotice(null);
     setShowTerminal(true);
 
     try {
-      const loadedFiles: { name: string; bytes: Uint8Array }[] = [];
-      for (const fileName of challenge.files) {
-        const res = await fetch(
-          `/api/challenges/${encodeURIComponent(challenge.slug)}/files/${encodeURIComponent(fileName)}`,
-        );
-        if (!res.ok) continue;
-        const buf = await res.arrayBuffer();
-        loadedFiles.push({ name: fileName, bytes: new Uint8Array(buf) });
-      }
+      const loadedFiles = await fetchChallengeFiles(
+        challenge.slug,
+        challenge.files,
+      );
 
       const targetDir = `~/challenges/${challenge.slug}`;
       setSeedRequest({

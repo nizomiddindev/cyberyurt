@@ -42,6 +42,8 @@ export interface TerminalSeedRequest {
   id: number;
   targetDir: string;
   files: { name: string; bytes: Uint8Array }[];
+  /** Skip files that already exist (automatic loading must never overwrite a student's work). */
+  onlyIfMissing?: boolean;
 }
 
 export interface TerminalProps {
@@ -454,12 +456,20 @@ export function Terminal({
         session.fs.homeDir,
       );
       await session.fs.mkdir(absDir, true);
+      let written = 0;
       for (const item of seedRequest.files) {
         const safeName = sanitizeUploadName(item.name);
-        await session.fs.writeFile(`${absDir}/${safeName}`, item.bytes);
+        const target = `${absDir}/${safeName}`;
+        if (seedRequest.onlyIfMissing && (await session.fs.exists(target))) {
+          continue;
+        }
+        await session.fs.writeFile(target, item.bytes);
+        written++;
       }
       await refreshFiles();
-      setStatusMessage(`${t.uploaded}: ${seedRequest.targetDir}`);
+      if (written > 0 || !seedRequest.onlyIfMissing) {
+        setStatusMessage(`${t.uploaded}: ${seedRequest.targetDir}`);
+      }
       onSeedCompleteRef.current?.(seedRequest.targetDir);
     }
 
