@@ -10,6 +10,15 @@ import { decodeText } from "@/lib/terminal/types";
 import { validateChallenges } from "../../../scripts/validate-challenges.mjs";
 
 const DRAFTS_DIR = path.join(process.cwd(), "content", "challenges-draft");
+const LIVE_DIR = path.join(process.cwd(), "content", "challenges");
+
+/** The 16 challenges Antigravity wrote on 2026-11-27. */
+const PROGRAMMING_ONLY = ["xor-kalit", "oddiy-tekshiruv", "bayt-qulf"];
+const PROMOTED = [
+  "ikki-qatlam", "soxta-pdf", "ochirilgan-iz", "satr-sanash", "qavatli-papka",
+  "manba-kodi", "cookie-siri", "foto-manzil", "domen-tarixi", "http-trafik",
+  "dns-tunel", "soxta-xat", "aldovchi-havola",
+];
 
 interface DraftInfo {
   slug: string;
@@ -18,11 +27,22 @@ interface DraftInfo {
   data: Record<string, unknown>;
 }
 
+/**
+ * 13 of the 16 were promoted to content/challenges (solvable with the browser
+ * shell alone); the 3 that need Python stay in content/challenges-draft.
+ */
 function readAllDrafts(): DraftInfo[] {
+  const wanted = new Set([...PROGRAMMING_ONLY, ...PROMOTED]);
+  return [...readChallengeDir(DRAFTS_DIR), ...readChallengeDir(LIVE_DIR)].filter((d) =>
+    wanted.has(d.slug),
+  );
+}
+
+function readChallengeDir(root: string): DraftInfo[] {
   const results: DraftInfo[] = [];
-  for (const cat of fs.readdirSync(DRAFTS_DIR, { withFileTypes: true })) {
+  for (const cat of fs.readdirSync(root, { withFileTypes: true })) {
     if (!cat.isDirectory() || cat.name.startsWith(".")) continue;
-    const catPath = path.join(DRAFTS_DIR, cat.name);
+    const catPath = path.join(root, cat.name);
     for (const slug of fs.readdirSync(catPath, { withFileTypes: true })) {
       if (!slug.isDirectory() || slug.name.startsWith(".")) continue;
       const dirPath = path.join(catPath, slug.name);
@@ -64,8 +84,29 @@ async function mountDraftInShell(draft: DraftInfo): Promise<ShellSession> {
 }
 
 describe("CTF Draft Challenges (content/challenges-draft/)", () => {
-  it("passes validateChallenges on all 16 draft challenges (solve.py hash match + zero plaintext flags)", () => {
+  it("passes validateChallenges on drafts and live challenges (solve.py hash match + zero plaintext flags)", () => {
     expect(validateChallenges(DRAFTS_DIR)).toEqual([]);
+    expect(validateChallenges(LIVE_DIR)).toEqual([]);
+  });
+
+  it("keeps only the programming-only challenges as drafts", () => {
+    const draftSlugs = readChallengeDir(DRAFTS_DIR).map((d) => d.slug).sort();
+    expect(draftSlugs).toEqual([...PROGRAMMING_ONLY].sort());
+    const liveSlugs = new Set(readChallengeDir(LIVE_DIR).map((d) => d.slug));
+    for (const slug of PROMOTED) expect(liveSlugs.has(slug)).toBe(true);
+  });
+
+  it("006 migration has a matching row (hash + points) for every promoted challenge", () => {
+    const sql = fs.readFileSync(
+      path.join(process.cwd(), "supabase", "migrations", "006_more_challenges.sql"),
+      "utf-8",
+    );
+    for (const item of readChallengeDir(LIVE_DIR).filter((d) => PROMOTED.includes(d.slug))) {
+      expect(sql).toContain(
+        `('${item.slug}', '${String(item.data.flag_sha256)}', ${Number(item.data.points)},`,
+      );
+    }
+    expect(sql).not.toMatch(/KIBER\{/);
   });
 
   it("covers all 8 categories (2 each) with balanced easy/medium/hard difficulty and Uzbek U+2018 typography", () => {
@@ -160,8 +201,9 @@ describe("CTF Draft Challenges (content/challenges-draft/)", () => {
       const conf = decodeText((await shell.execute("cat muhit.conf")).stdout);
       expect(conf).toContain("arxiv_02.dat");
       const line = decodeText((await shell.execute("grep REVHEX arxiv_02.dat")).stdout).trim();
-      const revHex = line.replace("REVHEX:", "").split("").reverse().join("");
-      const dec = await shell.execute(`echo ${revHex} | xxd -r -p`);
+      const revHex = line.replace("REVHEX:", "");
+      // Solved only with shell commands: rev undoes the reversal.
+      const dec = await shell.execute(`echo ${revHex} | rev | xxd -r -p`);
       expect(dec.exitCode).toBe(0);
       assertMatchesHash("qavatli-papka", decodeText(dec.stdout));
     }
@@ -182,10 +224,11 @@ describe("CTF Draft Challenges (content/challenges-draft/)", () => {
       const line = decodeText((await shell.execute("grep Set-Cookie javob.http")).stdout);
       const jwt = line.match(/session=([A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)/)?.[1] ?? "";
       const payloadSeg = jwt.split(".")[1] ?? "";
-      const padded =
-        payloadSeg.replaceAll("-", "+").replaceAll("_", "/") +
-        "=".repeat((4 - (payloadSeg.length % 4)) % 4);
-      const payloadJson = decodeText((await shell.execute(`echo ${padded} | base64 -d`)).stdout);
+      // Solved only with shell commands: tr turns base64url into base64, and
+      // base64 -d decodes even without "=" padding (GNU prints a warning).
+      const payloadJson = decodeText(
+        (await shell.execute(`echo ${payloadSeg} | tr _- /+ | base64 -d`)).stdout,
+      );
       const debugHex = (JSON.parse(payloadJson) as { debug_hex: string }).debug_hex;
       const dec = await shell.execute(`echo ${debugHex} | xxd -r -p`);
       expect(dec.exitCode).toBe(0);

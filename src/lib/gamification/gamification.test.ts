@@ -46,10 +46,14 @@ describe("XP, levels, badges, and category stats", () => {
     ]);
 
     const stats = computeCategoryStats(allSlugs, challenges);
-    expect(stats.Kriptografiya).toBe(2);
-    expect(stats.Linux).toBe(2);
-    expect(stats.Forensika).toBe(1);
-    expect(stats.Veb).toBe(0);
+    for (const [category, count] of Object.entries(stats)) {
+      expect(count).toBe(challenges.filter((c) => c.category === category).length);
+    }
+
+    // Only verified (known) slugs count; unknown ones are ignored.
+    const withJunk = computeCategoryStats(["salom-base64", "not-a-real-slug"], challenges);
+    expect(withJunk.Kriptografiya).toBe(1);
+    expect(Object.values(withJunk).reduce((a, b) => a + b, 0)).toBe(1);
   });
 });
 

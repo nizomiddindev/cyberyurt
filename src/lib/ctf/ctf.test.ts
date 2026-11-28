@@ -12,19 +12,22 @@ import { SlidingWindowRateLimiter } from "@/lib/ctf/rate-limit";
 import { validateChallenges } from "../../../scripts/validate-challenges.mjs";
 
 describe("CTF Challenges & Security", () => {
-  it("loads all 5 required easy challenges (Kriptografiya x2, Linux x2, Forensika x1)", () => {
+  it("loads the 5 original M4 easy challenges plus the promoted ones, covering all 8 categories", () => {
     const challenges = getAllServerChallenges();
-    expect(challenges).toHaveLength(5);
+    const bySlug = new Map(challenges.map((c) => [c.slug, c]));
 
-    const byCategory = challenges.reduce<Record<string, number>>((acc, c) => {
-      acc[c.category] = (acc[c.category] ?? 0) + 1;
-      return acc;
-    }, {});
+    // The 5 Milestone 4 challenges are still there and still easy.
+    for (const slug of ["salom-base64", "sezar-shifri", "yashirin-fayl", "log-ichida", "sirli-rasm"]) {
+      expect(bySlug.get(slug)?.difficulty).toBe("easy");
+    }
 
-    expect(byCategory.Kriptografiya).toBe(2);
-    expect(byCategory.Linux).toBe(2);
-    expect(byCategory.Forensika).toBe(1);
-    expect(challenges.every((c) => c.difficulty === "easy")).toBe(true);
+    // 2026-11-28: 13 more promoted from drafts. Reverse has none live yet: both
+    // Reverse drafts need Python, which the browser terminal does not have.
+    expect(challenges).toHaveLength(18);
+    const categories = new Set(challenges.map((c) => c.category));
+    expect(categories.size).toBe(7);
+    expect(categories.has("Reverse")).toBe(false);
+    expect(new Set(challenges.map((c) => c.slug)).size).toBe(challenges.length);
   });
 
   it("passes scripts/validate-challenges (every solve.py matches flag_sha256 and no plaintext flags in git)", () => {

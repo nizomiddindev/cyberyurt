@@ -11,4 +11,4 @@ hints:
     text: "Avval cat muhit.conf ni o‘qing, keyin grep REVHEX arxiv_02.dat buyrug‘ini bajaring."
   - id: h2
     cost: 45
-    text: "REVHEX: dan keyingi matn o‘ngdan chapga teskari yozilgan — avval uni teskari o‘giring, keyin hex dan matnga o‘tkazing."
+    text: "REVHEX: dan keyingi matn teskari yozilgan. rev buyrug‘i qatorni teskari o‘giradi: echo <matn> | rev | xxd -r -p"

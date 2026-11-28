@@ -199,18 +199,32 @@ function bytesToBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
-function base64ToBytes(encoded: string): Uint8Array {
+/**
+ * Decode base64 like GNU coreutils: decode everything up to the first problem.
+ * Missing "=" padding still yields the decoded bytes, but `complete` is false so
+ * the command can print "base64: invalid input" and exit 1 (as real Linux does).
+ */
+function base64ToBytes(encoded: string): { bytes: Uint8Array; complete: boolean } {
   const cleaned = encoded.replace(/\s+/g, "");
-  if (cleaned.length === 0) return new Uint8Array(0);
-  if (!/^[A-Za-z0-9+/]*={0,2}$/.test(cleaned) || cleaned.length % 4 !== 0) {
-    throw new Error("invalid input");
-  }
-  const binary = atob(cleaned);
+  if (cleaned.length === 0) return { bytes: new Uint8Array(0), complete: true };
+
+  const validPrefix = cleaned.match(/^[A-Za-z0-9+/]*/)?.[0] ?? "";
+  const padding = cleaned.slice(validPrefix.length).match(/^={0,2}/)?.[0] ?? "";
+  const fullyValid =
+    validPrefix.length + padding.length === cleaned.length &&
+    cleaned.length % 4 === 0;
+
+  // Decode only whole characters we trust; a single leftover char carries < 1 byte.
+  let usable = validPrefix;
+  if (usable.length % 4 === 1) usable = usable.slice(0, -1);
+  const padded = usable + "=".repeat((4 - (usable.length % 4)) % 4);
+
+  const binary = padded.length > 0 ? atob(padded) : "";
   const out = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
     out[i] = binary.charCodeAt(i);
   }
-  return out;
+  return { bytes: out, complete: fullyValid };
 }
 
 export const base64Command: CommandHandler = async (args, ctx) => {
@@ -231,11 +245,9 @@ export const base64Command: CommandHandler = async (args, ctx) => {
   if ("error" in input) return errResult(input.error);
 
   if (decode) {
-    try {
-      return okBytes(base64ToBytes(decodeText(input.bytes)));
-    } catch {
-      return errResult("base64: invalid input");
-    }
+    const { bytes, complete } = base64ToBytes(decodeText(input.bytes));
+    if (complete) return okBytes(bytes);
+    return { stdout: bytes, stderr: "base64: invalid input\n", exitCode: 1 };
   }
 
   const encoded = bytesToBase64(input.bytes);

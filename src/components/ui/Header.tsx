@@ -32,7 +32,7 @@ function isActivePath(pathname: string | null, href: string): boolean {
 
 function navLinkClasses(variant: NavVariant, active: boolean): string {
   if (variant === "desktop") {
-    return `relative inline-flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${focusRing} ${
+    return `relative inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium transition-colors ${focusRing} ${
       active
         ? "text-ink after:absolute after:inset-x-3 after:-bottom-2 after:h-0.5 after:rounded-full after:bg-accent"
         : "text-ink-muted hover:bg-card hover:text-ink"
@@ -123,26 +123,26 @@ export function Header({
             <span>{brandName}</span>
           </Link>
 
-          <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
+          <nav aria-label="Main" className="hidden items-center gap-1 xl:flex">
             <Nav items={navItems} variant="desktop" />
           </nav>
         </div>
 
-        <div className="hidden items-center gap-2 lg:flex">{actions}</div>
+        <div className="hidden shrink-0 items-center gap-2 xl:flex">{actions}</div>
 
         <button
           type="button"
           aria-expanded={menuOpen}
           aria-label={menuOpen ? closeLabel : menuLabel}
           onClick={() => setMenuOpen((prev) => !prev)}
-          className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-line text-ink hover:bg-card lg:hidden ${focusRing}`}
+          className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-line text-ink hover:bg-card xl:hidden ${focusRing}`}
         >
           {menuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
         </button>
       </div>
 
       {menuOpen ? (
-        <div className="animate-rise border-t border-line bg-page px-4 py-3 lg:hidden">
+        <div className="animate-rise border-t border-line bg-page px-4 py-3 xl:hidden">
           <nav aria-label="Mobile" className="flex flex-col gap-1">
             <Nav
               items={navItems}

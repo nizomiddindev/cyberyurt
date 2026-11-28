@@ -54,6 +54,14 @@
 - Built 16 staged CTF challenges in `content/challenges-draft/` (2 per category across all 8 categories: 6 easy, 6 medium, 4 hard), separate from the 5 live challenges in `content/challenges/`.
 - Added `--dir` support to `scripts/validate-challenges.mjs`, `npm run validate:drafts`, gitignored `content/challenges-draft/.flags.local.json`, fake `.flags.example.json`, `seed_drafts_preview.sql` (hashes only), and `src/lib/ctf/drafts.test.ts`. Zero plaintext flags exist in git.
 
+### 13 more CTF challenges live (2026-11-28, by Claude Code)
+- Antigravity wrote 16 drafts in `content/challenges-draft/` (2 per category). Review found that 3 of them (`xor-kalit`, `oddiy-tekshiruv`, `bayt-qulf`) can only be solved by programming (Antigravity's test solved them in JavaScript, not in our shell). Those 3 stay drafts until the terminal has Python (v86 idea) — so the Reverse category has no live challenge yet.
+- The other 13 were moved to `content/challenges/` (18 live total) and inserted into Supabase with `supabase/migrations/006_more_challenges.sql` (applied and verified: 18 rows).
+- Added real Linux commands so every live challenge is solvable in the browser shell: `rev`, `tr` (ranges, classes, `-d`, `-s`) in `src/lib/terminal/commands/transform.ts`. `base64 -d` now behaves like GNU: on missing `=` padding it still prints the decoded bytes, then `base64: invalid input`, exit 1 (needed for JWT payloads).
+- `src/lib/ctf/drafts.test.ts` now solves every promoted challenge with shell commands only and checks `006` matches the yaml hashes/points. `ctf.test.ts` and `gamification.test.ts` count from data instead of hard-coded "5 challenges".
+- Promoted flags were copied into the gitignored `content/challenges/.flags.local.json` so `generate.py` keeps working.
+- Header: full nav only from `xl` (1280px); below that the menu button is used (nav + login buttons were wrapping/overlapping at ~1000–1250px).
+
 ### Deferred security fixes
 - None open. (`class_name` is locked by `005`, which is applied.)
 

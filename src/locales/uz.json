@@ -148,7 +148,7 @@
     "resetDone": "Fayllar tozalandi",
     "helpTitle": "Mavjud buyruqlar:",
     "helpFiles": "Fayl va papkalar : ls, cd, pwd, cat, echo, mkdir, rm, cp, mv, touch",
-    "helpText": "Matn va qidiruv  : head, tail, wc, grep, find, sort, uniq",
+    "helpText": "Matn va qidiruv  : head, tail, wc, grep, find, sort, uniq, rev, tr",
     "helpAnalysis": "Tahlil va kodlash: file, strings, base64, xxd, hexdump",
     "helpSystem": "Tarmoq va tizim  : wget, clear, help, history, whoami",
     "helpExtra": "Qo‘shimcha       : | (pipe), > va >> (yo‘naltirish), Tab, ↑/↓"

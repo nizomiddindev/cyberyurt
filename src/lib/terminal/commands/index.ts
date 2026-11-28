@@ -32,6 +32,7 @@ import {
   uniqCommand,
   wcCommand,
 } from "@/lib/terminal/commands/text";
+import { revCommand, trCommand } from "@/lib/terminal/commands/transform";
 import { getMessages } from "@/locales";
 import { okText, type CommandHandler } from "@/lib/terminal/types";
 
@@ -53,6 +54,8 @@ export const COMMAND_NAMES = [
   "find",
   "sort",
   "uniq",
+  "rev",
+  "tr",
   "file",
   "strings",
   "base64",
@@ -96,6 +99,8 @@ export const COMMAND_REGISTRY: Record<string, CommandHandler> = {
   find: findCommand,
   sort: sortCommand,
   uniq: uniqCommand,
+  rev: revCommand,
+  tr: trCommand,
   file: fileCommand,
   strings: stringsCommand,
   base64: base64Command,
