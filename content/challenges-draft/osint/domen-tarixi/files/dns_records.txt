@@ -1,0 +1,5 @@
+maktab-klub.example.   300  IN  A     203.0.113.42
+maktab-klub.example.   300  IN  MX    10 mail.maktab-klub.example.
+maktab-klub.example.   300  IN  TXT   "v=spf1 include:_spf.example ~all"
+maktab-klub.example.   300  IN  TXT   "cyberyurt-verify=4b494245527b646e735f7478745f79307a7576315f743070316c64317d"
+www.maktab-klub.example. 300 IN CNAME maktab-klub.example.

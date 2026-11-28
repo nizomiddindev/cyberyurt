@@ -1,0 +1,14 @@
+slug: domen-tarixi
+title: DNS TXT yozuvi
+category: OSINT
+difficulty: medium
+points: 250
+description: "maktab-klub.example domenining WHOIS va DNS yozuvlari to‘plangan. TXT yozuvlari ichidan tasdiqlash tokenini toping va uni hex dan matnga o‘tkazing."
+flag_sha256: 03effb1f7c550b7ad7551e799dd5ec509721d3a2f0206dc0345784046a7037a2
+hints:
+  - id: h1
+    cost: 30
+    text: "grep TXT dns_records.txt buyrug‘i domenning barcha matnli yozuvlarini chiqaradi."
+  - id: h2
+    cost: 45
+    text: "cyberyurt-verify= dan keyingi hex qiymatni echo <hex> | xxd -r -p bilan oching."

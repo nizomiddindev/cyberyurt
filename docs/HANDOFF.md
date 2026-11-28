@@ -50,6 +50,10 @@
 - Enforced upload limits (5 MB/file, 50 MB total in `src/lib/terminal/limits.ts`) before `file.arrayBuffer()`, caught upload write errors (e.g. uploading while `cwd` is `/`), restricted `MemoryFileSystem` writes to `~` and `/tmp`, hardened `wget` to HTTPS-only (except `http://localhost` in dev), and added comprehensive tests (`line-editor.test.ts`, `security.test.ts`).
 - Added shell command chaining (`&&`, `||`, `;`) to `src/lib/terminal/parser.ts`, `shell.ts`, and `completion.ts` (combining with pipes and `>`/`>>`, preserving quoted operators, propagating `cd` across chains, reporting each executed command in `executedCommands` for lesson auto-complete, and returning bash-like syntax errors); tested in `src/lib/terminal/chaining.test.ts`.
 
+### CTF draft staging bank (2026-11-28)
+- Built 16 staged CTF challenges in `content/challenges-draft/` (2 per category across all 8 categories: 6 easy, 6 medium, 4 hard), separate from the 5 live challenges in `content/challenges/`.
+- Added `--dir` support to `scripts/validate-challenges.mjs`, `npm run validate:drafts`, gitignored `content/challenges-draft/.flags.local.json`, fake `.flags.example.json`, `seed_drafts_preview.sql` (hashes only), and `src/lib/ctf/drafts.test.ts`. Zero plaintext flags exist in git.
+
 ### Deferred security fixes
 - None open. (`class_name` is locked by `005`, which is applied.)
 

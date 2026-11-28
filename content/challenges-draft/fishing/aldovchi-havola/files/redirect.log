@@ -1,0 +1,2 @@
+2026-11-27 11:02:01 BLOCKED url=https://prize-claim.example/step reason=phishing_kit
+2026-11-27 11:02:02 HINT decode track: URL-decode -> base64 -d -> xxd -r -p

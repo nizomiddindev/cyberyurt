@@ -1,0 +1,5 @@
+Domain Name: maktab-klub.example
+Registrar: Example Registrar LLC
+Creation Date: 2024-09-01T10:00:00Z
+Name Server: ns1.maktab-klub.example
+Name Server: ns2.maktab-klub.example

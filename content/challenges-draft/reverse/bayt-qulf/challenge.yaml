@@ -1,0 +1,14 @@
+slug: bayt-qulf
+title: Bayt qulfi
+category: Reverse
+difficulty: hard
+points: 400
+description: "qulf.py kiritilgan kalitni teskari o‘giradi, indeksga bog‘liq XOR va qo‘shish amallarini bajaradi. Algoritmni teskarisiga yurib kalitni toping."
+flag_sha256: 67af952ac258a48a49b9fab9152f32a7667b8ccece02ff55173152031b13e2aa
+hints:
+  - id: h1
+    cost: 50
+    text: "Amallarni oxiridan boshiga qarab bekor qiling: avval 5 ni ayiring (mod 256), keyin (i * 3 + 11) % 256 bilan XOR qiling."
+  - id: h2
+    cost: 75
+    text: "Hosil bo‘lgan baytlar ketma-ketligini oxirida teskarisiga ([::-1]) o‘girishni unutmang."

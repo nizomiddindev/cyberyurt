@@ -1,0 +1,14 @@
+slug: satr-sanash
+title: Yagona satr
+category: Linux
+difficulty: easy
+points: 100
+description: "kodlar.txt faylida deyarli hamma qator 3 martadan takrorlangan, faqat bitta Base64 qatori yagona. Uni topib oching."
+flag_sha256: 1d29df7e7616c2b16f02029905c26fa83ad52ee4cad0314ed7c242fee485fc4e
+hints:
+  - id: h1
+    cost: 20
+    text: "sort kodlar.txt | uniq -u buyrug‘i faqat bir marta uchragan qatorni ajratib beradi."
+  - id: h2
+    cost: 25
+    text: "To‘liq zanjir: sort kodlar.txt | uniq -u | base64 -d"

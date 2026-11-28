@@ -36,6 +36,7 @@ yarn-error.log*
 
 # local CTF plaintext flags (never commit to public repo)
 content/challenges/.flags.local.json
+content/challenges-draft/.flags.local.json
 *.flags.local.json
 
 # vercel

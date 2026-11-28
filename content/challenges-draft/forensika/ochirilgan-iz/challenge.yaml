@@ -1,0 +1,14 @@
+slug: ochirilgan-iz
+title: O‘chirilgan iz
+category: Forensika
+difficulty: hard
+points: 350
+description: "disk.img nomli disk nusxasida 3 ta bo‘lakka bo‘lingan va tartibsiz sochilgan hex bayroq qoldiqlari bor. Ularni topib, tartib bilan birlashtiring va oching."
+flag_sha256: a2872441feed13f4b5db5b1b60f949eacf3f8771969e58e1d49daca0ad29b879
+hints:
+  - id: h1
+    cost: 40
+    text: "strings disk.img | grep FRAG_ buyrug‘i barcha 3 bo‘lakni (FRAG_1, FRAG_2, FRAG_3) topib beradi."
+  - id: h2
+    cost: 60
+    text: "FRAG_1, FRAG_2 va FRAG_3 qiymatlarini tartib bilan birlashtiring, so‘ng echo <hex> | xxd -r -p bilan oching."

@@ -184,13 +184,19 @@ const isDirectRun =
   path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
 
 if (isDirectRun) {
-  const errors = validateChallenges();
+  const dirFlagIdx = process.argv.indexOf("--dir");
+  const targetDir =
+    dirFlagIdx !== -1 && process.argv[dirFlagIdx + 1]
+      ? path.resolve(ROOT, process.argv[dirFlagIdx + 1])
+      : CHALLENGES_DIR;
+
+  const errors = validateChallenges(targetDir);
   if (errors.length > 0) {
-    console.error("Challenge validation failed:");
+    console.error(`Challenge validation failed (${path.relative(ROOT, targetDir)}):`);
     for (const err of errors) {
       console.error(`  - ${err}`);
     }
     process.exit(1);
   }
-  console.log("Challenge validation passed.");
+  console.log(`Challenge validation passed (${path.relative(ROOT, targetDir)}).`);
 }

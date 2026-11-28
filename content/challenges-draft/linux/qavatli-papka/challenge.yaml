@@ -1,0 +1,14 @@
+slug: qavatli-papka
+title: Sozlama izidan
+category: Linux
+difficulty: medium
+points: 200
+description: "muhit.conf faylida kerakli arxiv nomi va belgi ko‘rsatilgan. O‘sha fayldan kerakli qatorni toping va teskari yozilgan hex matnni tiklang."
+flag_sha256: c562a561f0cd3bc90e04d86e399317935224d506c78c490b839b04dc44a074ab
+hints:
+  - id: h1
+    cost: 30
+    text: "Avval cat muhit.conf ni o‘qing, keyin grep REVHEX arxiv_02.dat buyrug‘ini bajaring."
+  - id: h2
+    cost: 45
+    text: "REVHEX: dan keyingi matn o‘ngdan chapga teskari yozilgan — avval uni teskari o‘giring, keyin hex dan matnga o‘tkazing."

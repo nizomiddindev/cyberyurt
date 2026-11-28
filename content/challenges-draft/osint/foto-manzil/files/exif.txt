@@ -1,0 +1,7 @@
+File Name      : bog_surati.jpg
+Camera Model   : DemoCam X100
+Create Date    : 2026:11:15 16:35:12
+GPS Latitude   : 40 deg 29' 23.00" N
+GPS Longitude  : 68 deg 46' 58.00" E
+City Hint      : Guliston, Sirdaryo
+User Comment   : META_B64=S0lCRVJ7Z3VsMXN0MG5fZXgxZl9tNG56MWx9

@@ -1,0 +1,14 @@
+slug: manba-kodi
+title: Manba kodidagi izoh
+category: Veb
+difficulty: easy
+points: 100
+description: "Dasturchi maktab portali (index.html) kodida sinov eslatmasini unutib qoldirgan. HTML izohini topib undagi Base64 matnni oching."
+flag_sha256: 92bc156fd03d5e62bb9cc7b90c8753468c15b6eec404bf594cb6adb8ab9f07ff
+hints:
+  - id: h1
+    cost: 20
+    text: "HTML izohlari <!-- va --> orasida yoziladi. grep ADMIN_NOTE index.html ni sinab ko‘ring."
+  - id: h2
+    cost: 25
+    text: "ADMIN_NOTE= dan keyingi qiymatni echo <matn> | base64 -d orqali oching."

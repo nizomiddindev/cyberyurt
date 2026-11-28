@@ -1,0 +1,14 @@
+slug: http-trafik
+title: Ochiq HTTP trafik
+category: Tarmoq
+difficulty: medium
+points: 200
+description: "trafik.txt faylida shifrlanmagan HTTP orqali yuborilgan so‘rovlar yozib olingan. Basic avtorizatsiya sarlavhasidan parolni tiklang."
+flag_sha256: 129b49b099d4372435b46dcdcac705bbeaf19c5e1063e36b94f442cb0465c032
+hints:
+  - id: h1
+    cost: 25
+    text: "grep Authorization trafik.txt buyrug‘i bilan Basic sarlavhasini toping."
+  - id: h2
+    cost: 40
+    text: "HTTP Basic Auth shifrlash emas — oddiy Base64. echo <token> | base64 -d login:parol ko‘rinishini chiqaradi."

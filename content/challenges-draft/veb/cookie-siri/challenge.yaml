@@ -1,0 +1,14 @@
+slug: cookie-siri
+title: Cookie ichidagi JWT
+category: Veb
+difficulty: medium
+points: 250
+description: "javob.http faylida server yuborgan Set-Cookie sarlavhasi bor. JWT tokenning ikkinchi qismini (payload) ochib, yashirilgan hex maydonni matnga aylantiring."
+flag_sha256: ee20727b7bac9f842c67918fd9962a161e0d00508bcbf815fdbdee6a396ee938
+hints:
+  - id: h1
+    cost: 30
+    text: "JWT nuqtalar bilan 3 qismga bo‘linadi: header.payload.signature. O‘rtadagi qism oddiy Base64URL ko‘rinishida."
+  - id: h2
+    cost: 50
+    text: "Payload JSON ichidagi debug_hex qiymatini xxd -r -p bilan matnga o‘tkazing."

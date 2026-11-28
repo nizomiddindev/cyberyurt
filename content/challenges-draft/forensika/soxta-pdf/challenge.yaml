@@ -1,0 +1,14 @@
+slug: soxta-pdf
+title: Soxta PDF
+category: Forensika
+difficulty: easy
+points: 150
+description: "hujjat.pdf nomi PDF ga o‘xshaydi, lekin kengaytma aldamchi bo‘lishi mumkin. Faylning haqiqiy turini aniqlang va ichidagi yashirin yozuvni oching."
+flag_sha256: 3d52c3af083ddb19065b64c5adf501b01cfcb121d29ace17cc05740094aaf5b4
+hints:
+  - id: h1
+    cost: 20
+    text: "file hujjat.pdf buyrug‘i fayl aslida qaysi formatda ekanini ko‘rsatadi."
+  - id: h2
+    cost: 30
+    text: "strings hujjat.pdf | grep FAKEPDF buyrug‘i bilan Base64 qatorini topib base64 -d orqali oching."

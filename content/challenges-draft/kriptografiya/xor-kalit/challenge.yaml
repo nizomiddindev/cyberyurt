@@ -1,0 +1,14 @@
+slug: xor-kalit
+title: XOR kaliti
+category: Kriptografiya
+difficulty: medium
+points: 250
+description: "sir.hex faylidagi xabar qisqa kalit so‘z bilan takrorlanuvchi XOR orqali shifrlangan. eslatma.txt ni o‘qib asl xabarni tiklang."
+flag_sha256: a27d31269bea03d3f774086ff2e7afeef6ceb413ace2c8e600f7a26dc853249d
+hints:
+  - id: h1
+    cost: 30
+    text: "XOR amali o‘ziga-o‘zi teskari: shifrlangan baytni yana o‘sha kalit bayti bilan XOR qilsangiz asl matn chiqadi."
+  - id: h2
+    cost: 50
+    text: "sir.hex ni baytlarga aylantiring va har bir i-baytni b'yurt'[i % 4] bilan XOR qiling."

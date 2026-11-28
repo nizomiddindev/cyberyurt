@@ -1,0 +1,14 @@
+slug: soxta-xat
+title: Soxta bank xati
+category: Fishing
+difficulty: easy
+points: 150
+description: "xat.eml elektron xati bank nomidan kelgandek ko‘rinadi, lekin sarlavhalar uning soxta ekanini fosh qiladi. Xat sarlavhalarini o‘rganib yashirin kampaniya kodini oching."
+flag_sha256: 6282af2ed17e42dbc313396966ddea21cfcb0ee5cada6c992538b020ed907b7a
+hints:
+  - id: h1
+    cost: 20
+    text: "cat xat.eml bilan Return-Path, Authentication-Results va X-Campaign-Ref qatorlariga qarang."
+  - id: h2
+    cost: 30
+    text: "X-Campaign-Ref qiymati Base64 formatida: echo <qiymat> | base64 -d"

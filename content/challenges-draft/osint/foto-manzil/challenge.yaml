@@ -1,0 +1,14 @@
+slug: foto-manzil
+title: Surat metama'lumoti
+category: OSINT
+difficulty: easy
+points: 150
+description: "Foydalanuvchi suratni internetga yuklashdan oldin EXIF ma'lumotlarini o‘chirmagan. post.txt va exif.txt fayllarini tahlil qilib yashirin izohni oching."
+flag_sha256: 8636c97a51558ded9ea9514fa302609c6cfa851dfcd12f95b949f04f475b1cf9
+hints:
+  - id: h1
+    cost: 20
+    text: "cat exif.txt buyrug‘i bilan GPS manzil va User Comment qatorini tekshiring."
+  - id: h2
+    cost: 30
+    text: "META_B64= dan keyingi Base64 matnini base64 -d bilan oching."

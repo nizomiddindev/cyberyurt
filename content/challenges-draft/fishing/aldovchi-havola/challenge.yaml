@@ -1,0 +1,14 @@
+slug: aldovchi-havola
+title: Aldovchi havola
+category: Fishing
+difficulty: hard
+points: 300
+description: "sahifa.html va redirect.log fayllarida sovrin va'da qiluvchi fishing sahifasi tahlil qilingan. Havolani bosmasdan, yashirin track parametrini bosqichma-bosqich oching."
+flag_sha256: dc6671d8b2559094277ddae127ddfc857716727cf8f7186122f449f9146227c3
+hints:
+  - id: h1
+    cost: 40
+    text: "redirect.log ichidagi eslatmaga qarang: avval URL-dekodlash (%3D -> =), keyin Base64, keyin hex."
+  - id: h2
+    cost: 60
+    text: "sahifa.html dagi track= qiymatidan %3D ni = ga almashtirib echo <matn> | base64 -d | xxd -r -p bajaring."

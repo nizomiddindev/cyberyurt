@@ -10,7 +10,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "validate:lessons": "node scripts/validate-lessons.mjs",
-    "validate:challenges": "node scripts/validate-challenges.mjs"
+    "validate:challenges": "node scripts/validate-challenges.mjs",
+    "validate:drafts": "node scripts/validate-challenges.mjs --dir content/challenges-draft"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

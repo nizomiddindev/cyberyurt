@@ -1,0 +1,6 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Set-Cookie: session=eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAic3R1ZGVudF8wNyIsICJyb2xlIjogImd1ZXN0IiwgImRlYnVnX2hleCI6ICI0YjQ5NDI0NTUyN2I2YTc3NzQ1ZjYzMzAzMDZiMzEzMzVmNzM2ODMxNjY3MjVmNjU2ZDM0NzM3ZCJ9.ZGVtby1zaWduYXR1cmUtb25seQ; Path=/; SameSite=Lax
+X-Powered-By: Portal-Demo
+
+<h1>Xush kelibsiz!</h1>

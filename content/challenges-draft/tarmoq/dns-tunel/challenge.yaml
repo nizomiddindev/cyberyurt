@@ -1,0 +1,14 @@
+slug: dns-tunel
+title: DNS tuneli
+category: Tarmoq
+difficulty: hard
+points: 350
+description: "dns.log jurnalida zararli dastur ma'lumotni DNS subdomenlari ichiga bo‘lib yuborayotgani qayd etilgan. Shubhali so‘rovlarni yig‘ib, hex ma'lumotni tiklang."
+flag_sha256: b14fed024cc3b83d6405677d2f6a069849aadb2f9d79bd58058ef22babeecdd2
+hints:
+  - id: h1
+    cost: 40
+    text: "grep exfil.example dns.log buyrug‘i faqat ma'lumot chiqib ketayotgan so‘rovlarni ajratadi."
+  - id: h2
+    cost: 60
+    text: "Har bir subdomen 01.<hex>.exfil.example ko‘rinishida. Raqam tartibi bo‘yicha hex bo‘laklarni ulab xxd -r -p bilan oching."

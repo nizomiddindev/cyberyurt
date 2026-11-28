@@ -1,0 +1,14 @@
+slug: oddiy-tekshiruv
+title: Oddiy tekshiruv
+category: Reverse
+difficulty: medium
+points: 250
+description: "tekshir.py dasturi kiritilgan parolni raqamlar ro‘yxati bilan solishtiradi. Kodni tahlil qilib to‘g‘ri parolni (bayroqni) tiklang."
+flag_sha256: c5618b8279db3b11d2758ee43ee5881e82f030d0e3865c228c410505f76bbf05
+hints:
+  - id: h1
+    cost: 30
+    text: "cat tekshir.py orqali SHIFT qiymati va TARGET ro‘yxatini ko‘ring."
+  - id: h2
+    cost: 45
+    text: "Har bir sonidan SHIFT (7) ni ayirib, chr() orqali ASCII belgisiga aylantiring."

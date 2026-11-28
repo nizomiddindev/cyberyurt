@@ -1,0 +1,19 @@
+--- Packet #1 (192.168.1.15 -> 192.168.1.1:80) ---
+GET / HTTP/1.1
+Host: router.local
+User-Agent: DemoBrowser/1.0
+
+--- Packet #2 (192.168.1.1:80 -> 192.168.1.15) ---
+HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Basic realm="RouterAdmin"
+
+--- Packet #3 (192.168.1.15 -> 192.168.1.1:80) ---
+GET /admin/status HTTP/1.1
+Host: router.local
+Authorization: Basic YWRtaW46S0lCRVJ7aHR0cF9iNHMxY18wY2gxcV9rM3Q0ZDF9
+
+--- Packet #4 (192.168.1.1:80 -> 192.168.1.15) ---
+HTTP/1.1 200 OK
+Content-Type: text/plain
+
+Status: ONLINE

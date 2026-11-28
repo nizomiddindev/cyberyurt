@@ -1,0 +1,14 @@
+slug: ikki-qatlam
+title: Ikki qatlam
+category: Kriptografiya
+difficulty: easy
+points: 150
+description: "shifr.txt ichidagi xabar avval Base64, keyin esa 16-lik (hex) ko‘rinishiga o‘tkazilgan. Ikkala qatlamni teskari tartibda ochib bayroqni toping."
+flag_sha256: c778bf6d5059376202ea64fd41b8f2cd362ea43542d3f89d1590717c5c07a368
+hints:
+  - id: h1
+    cost: 20
+    text: "Avval cat shifr.txt | xxd -r -p orqali hex qatlamini oching."
+  - id: h2
+    cost: 30
+    text: "Ikkala buyruqni birlashtiring: cat shifr.txt | xxd -r -p | base64 -d"

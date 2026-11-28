@@ -1,0 +1,11 @@
+Return-Path: <alerts@fake-bank-promo.example>
+Received: from mail.fake-bank-promo.example (198.51.100.77)
+From: "Bank Xavfsizlik" <support@haqiqiy-bank.example>
+To: talaba@maktab.example
+Subject: SHOSHILINCH! Kartangiz 10 daqiqada bloklanadi
+Authentication-Results: spf=fail; dkim=fail
+X-Campaign-Ref: S0lCRVJ7czRybDR2aDRfZjFzaDFuZ24xX2Ywc2hfcTFsZDF9
+Content-Type: text/plain; charset=utf-8
+
+Hurmatli mijoz! Kartangiz bloklanmasligi uchun darhol quyidagi havolaga kiring:
+https://haqiqiy-bank.example.login-check.example/verify
