@@ -196,16 +196,13 @@ export function Terminal({
         term.clear();
       }
 
-      let endedWithNewline = true;
-      if (result.stdout.byteLength > 0) {
-        const outText = decodeText(result.stdout);
-        term.write(toTerminalNewlines(outText));
-        endedWithNewline = outText.endsWith("\n");
+      // `display` keeps output and errors in the order they happened.
+      const shown =
+        result.display ?? `${decodeText(result.stdout)}${result.stderr}`;
+      if (shown.length > 0) {
+        term.write(toTerminalNewlines(shown));
       }
-      if (result.stderr.length > 0) {
-        term.write(toTerminalNewlines(result.stderr));
-        endedWithNewline = result.stderr.endsWith("\n");
-      }
+      const endedWithNewline = shown.length === 0 || shown.endsWith("\n");
       if (!endedWithNewline) {
         term.write("\r\n");
       }

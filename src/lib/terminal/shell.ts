@@ -4,6 +4,7 @@ import { completeInput, type CompletionResult } from "@/lib/terminal/completion"
 import { parseCommandLine, type ParsedPipeline } from "@/lib/terminal/parser";
 import { formatPromptCwd, resolvePath } from "@/lib/terminal/path";
 import {
+  decodeText,
   errResult,
   okText,
   type CommandResult,
@@ -136,6 +137,13 @@ export class ShellSession {
         combinedStderr += result.stderr;
       }
 
+      // Errors from earlier commands in the pipe appear before the final output;
+      // the last command's own error appears after its output (like a real shell).
+      const earlierStderr = combinedStderr.slice(
+        0,
+        combinedStderr.length - (result.stderr?.length ?? 0),
+      );
+
       if (cmd.redirect) {
         const targetPath = resolvePath(
           cmd.redirect.target,
@@ -154,6 +162,7 @@ export class ShellSession {
             stderr: combinedStderr,
             exitCode: result.exitCode,
             clearScreen: result.clearScreen,
+            display: combinedStderr,
           };
         } catch (err) {
           const msg = err instanceof Error ? err.message : "Write error";
@@ -173,6 +182,7 @@ export class ShellSession {
         lastResult = {
           ...result,
           stderr: combinedStderr,
+          display: `${earlierStderr}${decodeText(result.stdout)}${result.stderr ?? ""}`,
         };
       }
 
@@ -211,6 +221,7 @@ export class ShellSession {
 
     const stdoutChunks: Uint8Array[] = [];
     let combinedStderr = "";
+    let display = "";
     let lastExitCode = 0;
     let clearScreen = false;
     const executedCommands: ExecutedCommand[] = [];
@@ -229,6 +240,7 @@ export class ShellSession {
         clearScreen = true;
         stdoutChunks.length = 0;
         combinedStderr = "";
+        display = "";
       }
 
       if (res.stdout.byteLength > 0) {
@@ -237,6 +249,10 @@ export class ShellSession {
       if (res.stderr) {
         combinedStderr += res.stderr;
       }
+
+      // Keep the on-screen order real across the chain (see executePipeline).
+      display += res.display ?? `${decodeText(res.stdout)}${res.stderr}`;
+
       lastExitCode = res.exitCode;
     }
 
@@ -246,6 +262,7 @@ export class ShellSession {
       exitCode: lastExitCode,
       clearScreen: clearScreen || undefined,
       executedCommands,
+      display,
     };
   }
 }

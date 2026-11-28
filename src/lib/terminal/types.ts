@@ -47,6 +47,12 @@ export interface CommandResult {
   exitCode: number;
   clearScreen?: boolean;
   executedCommands?: ExecutedCommand[];
+  /**
+   * What the terminal should print, with stdout and stderr in the order they
+   * happened across a chain (e.g. `cat nope || echo ok` shows the error first).
+   * Set by ShellSession.execute; stdout/stderr stay separate for pipes and tests.
+   */
+  display?: string;
 }
 
 export interface CommandContext {

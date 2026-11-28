@@ -80,6 +80,36 @@ describe("tr", () => {
   });
 });
 
+describe("on-screen order of output and errors (display)", () => {
+  it("shows the error before the output of the next command in a chain", async () => {
+    const shell = await createShell();
+    const r = await shell.execute("cat nope || echo ok");
+    expect(r.display).toMatch(/^cat: nope[^\n]*\nok\n$/);
+    // stdout and stderr themselves are unchanged
+    expect(decodeText(r.stdout)).toBe("ok\n");
+    expect(r.stderr).toContain("cat: nope");
+  });
+
+  it("keeps a single command's output before its own error", async () => {
+    const shell = await createShell();
+    const r = await shell.execute("echo S0lCRVJ7YjY0fQ | base64 -d");
+    expect(r.display).toBe("KIBER{b64}base64: invalid input\n");
+  });
+
+  it("shows an earlier pipe command's error before the final output", async () => {
+    const shell = await createShell();
+    const r = await shell.execute("cat nope | wc -l");
+    expect(r.display).toMatch(/^cat: nope[^\n]*\n0\n$/);
+  });
+
+  it("is reset by clear", async () => {
+    const shell = await createShell();
+    const r = await shell.execute("echo a ; clear ; echo b");
+    expect(r.clearScreen).toBe(true);
+    expect(r.display).toBe("b\n");
+  });
+});
+
 describe("base64 -d without padding (GNU behaviour)", () => {
   it("still prints the decoded text, then warns and exits 1", async () => {
     const shell = await createShell();

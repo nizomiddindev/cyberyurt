@@ -43,7 +43,8 @@
 
 ### Known bugs / limitations
 - Full live Supabase email signup flow still postponed from Milestone 1 (Supabase "Confirm email" email delivery).
-- Cosmetic: in a chain like `cat nope || echo ok`, stdout is printed before stderr (`ok` appears above the cat error) because the shell prints all output after the whole line runs.
+- (Fixed 2026-11-28) Output/error order in chains: `CommandResult.display` now keeps stdout and stderr in the order they happened (`cat nope || echo ok` shows the error first; in a pipe, earlier commands' errors come before the final output and the last command's own error after it). `stdout`/`stderr` are unchanged for pipes and tests.
+- Dev-server note: after editing a client component, `npm run dev` sometimes keeps serving the old server HTML (hydration-mismatch warnings in the console). Restarting `npm run dev` fixes it; production builds are not affected.
 
 ### Terminal line-editor & security hardening (2026-11-27)
 - Moved terminal line editing into pure, unit-tested `src/lib/terminal/line-editor.ts` with proper multi-row wrapping, exact wrap-boundary handling, Uzbek character width (`o‘`, `g‘` = 1 col per char), resize reflow, and Ctrl+W / Ctrl+U / Ctrl+K shortcuts.
